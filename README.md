@@ -37,9 +37,13 @@ tail -f file | lch -red error warn -green success
 
 ## Examples
 Highlight in default color - ```lch error,warn```
+
 Force case sensitive - ```lch -cs ERROR,WARN```
+
 Specify color - ```lch -red error -blue warn```
+
 Add style - ```lch -red.bold error -blue.italic.underline warn```
+
 Use regex - ```lch -green .*success.* ```
 
 
