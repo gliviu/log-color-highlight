@@ -1,0 +1,12 @@
+/node_modules
+.project
+/test.log
+/test2.log
+/test3.log
+/.settings/
+/test-huge.log
+/coverage/
+/.externalToolBuilders
+/npm-debug.log
+/lch.conf
+/test.js

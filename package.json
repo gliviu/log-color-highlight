@@ -1,0 +1,34 @@
+{
+  "name": "log-color-highlight",
+  "version": "1.0.0",
+  "description": "Node Js command line utility for highlighting log files",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gliviu/log-color-highlight"
+  },
+  "keywords": [
+    "log", "highlight", "colors", "tail", "command line", "cli", "pipe"
+  ],
+  "dependencies": {
+      "ansi-styles": "2.0.1"
+    },
+  "devDependencies": {
+    "istanbul": "0.3.2",
+    "colors": "0.6.2",
+    "memory-streams": "0.1.0"
+  },
+  "bin": {
+    "lch": "lch.js"
+  },
+  "scripts": {
+      "test": "istanbul cover tests/runTests.js"
+  },
+  "author": {
+    "name": "Liviu Grigorescu"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gliviu/log-color-highlight/issues"
+  }
+}

@@ -1,0 +1,57 @@
+2015-06-05 09:13:48:1750 [9084] On receive (ctrl) - monitorId: 3e5e8426-5891-4256-8bda-b03bf6f14d67
+2015-06-05 09:14:13:2540 [9084] Cancell alarm - sleep: true, monitorId: 5b63ca1b-3b69-42df-99c8-e754a800c85a
+2015-06-05 09:15:08:1670 [9084] On receive (ctrl) - monitorId: 3e5e8426-5891-4256-8bda-b03bf6f14d67
+2015-06-05 09:16:31:4720 [SysMonWidget] onUpdate [140,138,135,134,129,128]
+2015-06-05 09:16:31:4970 [SysMonWidget] Widget onUpdate: Schedule initial update for widget 128
+2015-06-05 09:16:31:5000 [SysMonWidget] onUpdate [140,138,135,134,129,128]
+2015-06-05 09:16:31:5150 [SysMonWidget] Widget onUpdate: Schedule initial update for widget 128
+2015-06-05 09:16:31:5180 [SysMonWidget] onUpdate [140,138,135,134,129,128]
+2015-06-05 09:16:31:5310 [SysMonWidget] Widget onUpdate: Schedule initial update for widget 129
+2015-06-05 09:16:31:5330 [SysMonWidget] Widget onUpdate: Schedule initial update for widget 128
+2015-06-05 09:16:31:5360 [SysMonWidget] onUpdate [140,138,135,134,129,128]
+2015-06-05 09:16:31:5490 [SysMonWidget] Widget onUpdate: Schedule initial update for widget 128
+2015-06-05 09:16:31:5530 [SysMonWidget] onUpdate [140,138,135,134,129,128]
+2015-06-05 09:16:31:5690 [SysMonWidget] Widget onUpdate: Schedule initial update for widget 128
+2015-06-05 09:16:34:6720 [SysMonWidget] WidgetFirstUpdateTimer: START Timer activated  140
+2015-06-05 09:16:34:7100 [SysMonWidget] WidgetFirstUpdateTimer: App not running. MonitorId.  f0de1108-55df-428e-a1ba-19daa544d0fe
+2015-06-05 09:16:34:9490 [9084] Monitor: Set widget id: 140
+2015-06-05 09:16:34:9500 [9084] getAppWidgetId: update widget cache for appWidgetId 140, monitorId f0de1108-55df-428e-a1ba-19daa544d0fe
+2015-06-05 09:16:35:0210 [9084,SysMonWidget] WidgetFirstUpdateTimer: App not running for monitor f0de1108-55df-428e-a1ba-19daa544d0fe
+2015-06-05 09:16:35:0260 [9084] Start timer sleep: true, monitorId: f0de1108-55df-428e-a1ba-19daa544d0fe
+2015-06-05 09:16:35:0300 [9084,SysMonWidget] WidgetFirstUpdateTimer: App not running - Start timer for monitor f0de1108-55df-428e-a1ba-19daa544d0fe
+2015-06-05 09:16:35:0320 [SysMonWidget] WidgetFirstUpdateTimer: Update widget  140
+2015-06-05 09:16:35:0660 [SysMonWidget] MonitorTimer: Updated widget140
+2015-06-05 09:16:35:0680 [SysMonWidget] WidgetFirstUpdateTimer: END Timer activated  140
+2015-06-05 09:16:35:0720 [SysMonWidget] WidgetFirstUpdateTimer: START Timer activated  138
+2015-06-05 09:16:35:0810 [SysMonWidget] WidgetFirstUpdateTimer: App not running. MonitorId.  3e5e8426-5891-4256-8bda-b03bf6f14d67
+2015-06-05 09:16:35:1000 [9084] Monitor: Set widget id: 138
+2015-06-05 09:16:35:1950 [SysMonWidget] WidgetFirstUpdateTimer: Update widget  135
+2015-06-05 09:16:35:2270 [SysMonWidget] MonitorTimer: Updated widget135
+2015-06-05 09:16:35:2340 [SysMonWidget] WidgetFirstUpdateTimer: App not running. MonitorId.  5b63ca1b-3b69-42df-99c8-e754a800c85a
+2015-06-05 09:16:35:2370 [SystemMonitor] java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.String com.gliviu.systemMonitor.util.config.MonitorConfig.getMonitorId()' on a null object reference
+	at com.gliviu.systemMonitor.data.RunningMonitors.addMonitor(RunningMonitors.java:97)
+	at com.gliviu.systemMonitor.data.RunningMonitors.getOrAddMonitor(RunningMonitors.java:166)
+	at com.gliviu.systemMonitor.widget.WidgetFirstUpdateTimer.onReceive(WidgetFirstUpdateTimer.java:46)
+	at android.app.ActivityThread.handleReceiver(ActivityThread.java:2579)
+	at android.app.ActivityThread.access$1700(ActivityThread.java:144)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1355)
+	at android.os.Handler.dispatchMessage(Handler.java:102)
+	at android.os.Looper.loop(Looper.java:135)
+	at android.app.ActivityThread.main(ActivityThread.java:5221)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at java.lang.reflect.Method.invoke(Method.java:372)
+	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:899)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:694)
+
+2015-06-05 09:16:35:2430 [SysMonWidget] WidgetFirstUpdateTimer: START Timer activated  129
+2015-06-05 09:16:35:2440 [SysMonWidget] WidgetFirstUpdateTimer: App not running. MonitorId.  fe40301a-f688-47a8-84d4-080ca18d1edc
+2015-06-05 09:16:35:2580 [9084] Monitor: Set widget id: 129
+2015-06-05 09:16:35:2590 [9084,SysMonWidget] WidgetFirstUpdateTimer: App not running for monitor fe40301a-f688-47a8-84d4-080ca18d1edc
+2015-06-05 09:16:35:2620 [9084] Start timer sleep: true, monitorId: fe40301a-f688-47a8-84d4-080ca18d1edc
+2015-06-05 09:16:35:2650 [9084,SysMonWidget] WidgetFirstUpdateTimer: App not running - Start timer for monitor fe40301a-f688-47a8-84d4-080ca18d1edc
+2015-06-05 09:16:35:2670 [SysMonWidget] WidgetFirstUpdateTimer: Update widget  129
+2015-06-05 09:16:35:2960 [SysMonWidget] MonitorTimer: Updated widget129
+2015-06-05 09:16:35:2980 [SysMonWidget] WidgetFirstUpdateTimer: END Timer activated  129
+2015-06-05 09:16:35:3010 [SysMonWidget] WidgetFirstUpdateTimer: START Timer activated  128
+2015-06-05 09:16:35:3030 [SysMonWidget] WidgetFirstUpdateTimer: App not running. MonitorId.  41caaad6-a297-4779-aa75-27fd72529462
+2015-06-05 09:16:35:3120 [9084] Monitor: Set widget id: 128
