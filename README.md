@@ -21,7 +21,8 @@ tail -f file | lch -red error warn -green success
   Usage: lch [options] Highlight pattern
 
   Options:
-        -f filePath     File to open. If this is not provided, content taken from pipe.
+        -f filePath     Input file path. If this is not provided, 'stdin' is used.
+        -c configPath   Path to configuration file. See Highlight pattern below.
         -s style        Implicit style. See Styles below for valid value.
         -cs             Case sensitive.
         -h --help       Prints this help message.
