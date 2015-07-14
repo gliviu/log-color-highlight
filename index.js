@@ -1,7 +1,7 @@
 var ansi = require('ansi-styles');
 var fs = require('fs');
 var events = require('events');
-
+var pjson = require('./package.json');
 
 var DEFAULT_HIGHLIGHT_COLOR = 'red'; // If no color is specified, use red.
 var DEFAULT_HIGHLIGHT_COLOR_PARAM = 'DEFAULT_HIGHLIGHT_COLOR_PARAM';
@@ -72,11 +72,13 @@ function gray(message){
 }
 
 function printHelp () {
+    console.log("  log-color-highlight v"+pjson.version);
+
     console.log(bold("  Usage:")+" lch [options] Highlight pattern");
     console.log("");
     
     console.log(bold("  Options:"));
-    console.log("\t-f filePath\tInput file path. If this is not provided, 'stdin' is used.");
+    console.log("\t-f filePath\tInput file path. If this is not provided, standard input is used.");
     console.log("\t-c configPath\tPath to configuration file. See "+bold("Highlight pattern")+" below.");
     console.log("\t-s style\tImplicit style. See "+gray('Styles')+" below for valid value.");
     console.log("\t-cs\t\tCase sensitive.");
@@ -155,8 +157,7 @@ function validateAndBuildColor(colorText){
 
 function validateAndBuildOptions (args) {
     if(args.length==0){
-        console.log(error("No options specified"));
-        return false;
+        return error("No options specified");
     }
     
     for (var i = 0; i < args.length;) {
@@ -168,8 +169,7 @@ function validateAndBuildOptions (args) {
 
         if (arg1 === '-f') {
             if (arg2 == null) {
-                console.log(error("Input file path required."));
-                return false;
+                return error("Input file path required.");
             }
             argFile = arg2;
             i += 2;
@@ -177,16 +177,15 @@ function validateAndBuildOptions (args) {
         }
         if (arg1 === '-c') {
             if (arg2 == null) {
-                console.log(error("Config file path required."));
-                return false;
+                return error("Config file path required.");
             }
             argConfig = arg2;
             
             var buildConfigArgument = require('./config'); 
             var configArgs = buildConfigArgument(argConfig);
-            if (!validateAndBuildOptions(configArgs)) {
-                console.log(error('Error in config file.'));
-                return false;
+            var optionsResult = validateAndBuildOptions(configArgs);
+            if (optionsResult!==true) {
+                return error('Error in config file: '+optionsResult);
             }
             
             i += 2;
@@ -199,12 +198,10 @@ function validateAndBuildOptions (args) {
         }
         if (arg1 === '-s') {
             if (arg2 == null) {
-                console.log(error("Default style required for '"+arg1+"'."));
-                return false;
+                return error("Default style required for '"+arg1+"'.");
             }
             if(!validateAndBuildColor(arg2)){
-                console.log(error("Default style '"+arg2+"' is not valid."));
-                return false;
+                return error("Default style '"+arg2+"' is not valid.");
             }
             argDefaultStyle = arg2;
             i+=2;
@@ -234,9 +231,7 @@ function validateAndBuildOptions (args) {
                     });
 
             if(!validateAndBuildColor(colorText)){
-                var message = "Invalid color '"+arg1+"'."; 
-                console.log(error(message));
-                return false;
+                return error("Wrong option: '"+arg1+"'");
             }
             // Get all following arguments
             var patternsArray = [];
@@ -249,9 +244,7 @@ function validateAndBuildOptions (args) {
                 }
             }
             if(patternsArray.length==0){
-                var message = "At least one pattern to highlight is required for '"+arg1+"'."; 
-                console.log(error(message));
-                return false;
+                return error("At least one pattern to highlight is required for '"+arg1+"'.");
             }
             
             addHighlightPattern(colorText, patternsArray);
@@ -260,12 +253,7 @@ function validateAndBuildOptions (args) {
         }
         
 
-        console.log(error("Wrong argument: " + arg1));
-        return false;
-    }
-    if(highlightOptions.length===1 && highlightOptions[0]===null){
-        console.log(error("No highlight pattern specified"));
-        return false;
+        return error("Wrong option: " + arg1+"'");
     }
     return true;
 }
@@ -388,8 +376,9 @@ function execute (args, writer) {
     highlightOptions = [null];
     
     
-    if (!validateAndBuildOptions(args)) {
-        console.log('');
+    var optionsResult = validateAndBuildOptions(args);
+    if (optionsResult!==true) {
+        console.log(optionsResult);
         printHelp();
         return;
     }
@@ -398,6 +387,13 @@ function execute (args, writer) {
         printHelp();
         return;
     }
+    
+    if(highlightOptions.length===1 && highlightOptions[0]===null){
+        console.log(error("No highlight pattern specified"));
+        printHelp();
+        return;
+    }
+    
 
     // Transform highlight pattern into valid regexp.
     for(var i=0; i<highlightOptions.length; i++){
