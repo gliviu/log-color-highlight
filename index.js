@@ -104,9 +104,9 @@ function printHelp () {
     console.log('');
     
     console.log(bold("  Examples:"));
-    console.log("\ttail -f file | lch error,warn");
-    console.log("\ttail -f file | lch -cs ERROR,WARN");
-    console.log("\ttail -f file | lch -red error -blue warn");
+    console.log("\ttail -f file | lch error warn");
+    console.log("\ttail -f file | lch -cs ERROR WARN");
+    console.log("\ttail -f file | lch -red error -yellow warn");
 }
 
 //Receives 'color1.color2...'.
