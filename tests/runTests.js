@@ -75,43 +75,43 @@ var tests = [
                  res: false
              },
              // Case 3
-//             {
-//                 name: 'test2_case3_1',
-//                 args: "-f "+INPUT2_PATH+" -green nitor -red monit",
-//                 res: false
-//             },
-//             {
-//                 name: 'test2_case3_2',
-//                 args: "-f "+INPUT2_PATH+" -green nitor -red mon",
-//                 res: false
-//             },
-//             // Case 4
-//             {
-//                 name: 'test2_case4_1',
-//                 args: "-f "+INPUT2_PATH+" -green nitor -red torid",
-//                 res: false
-//             },
-//             {
-//                 name: 'test2_case4_2',
-//                 args: "-f "+INPUT2_PATH+" -green nitor -red rid",
-//                 res: false
-//             },
-//             // Case 5
-//             {
-//                 name: 'test2_case5_1',
-//                 args: "-f "+INPUT2_PATH+" -green monitorid -red itor",
-//                 res: false
-//             },
-//             {
-//                 name: 'test2_case5_2',
-//                 args: "-f "+INPUT2_PATH+" -green monitorid -red monit",
-//                 res: false
-//             },
-//             {
-//                 name: 'test2_case5_3',
-//                 args: "-f "+INPUT2_PATH+" -green monitorid -red orid",
-//                 res: false
-//             },
+             {
+                 name: 'test2_case3_1',
+                 args: "-f "+INPUT2_PATH+" -green nitor -red monit",
+                 res: false
+             },
+             {
+                 name: 'test2_case3_2',
+                 args: "-f "+INPUT2_PATH+" -green nitor -red mon",
+                 res: false
+             },
+             // Case 4
+             {
+                 name: 'test2_case4_1',
+                 args: "-f "+INPUT2_PATH+" -green nitor -red torid",
+                 res: false
+             },
+             {
+                 name: 'test2_case4_2',
+                 args: "-f "+INPUT2_PATH+" -green nitor -red rid",
+                 res: false
+             },
+             // Case 5
+             {
+                 name: 'test2_case5_1',
+                 args: "-f "+INPUT2_PATH+" -green monitorid -red itor",
+                 res: false
+             },
+             {
+                 name: 'test2_case5_2',
+                 args: "-f "+INPUT2_PATH+" -green monitorid -red monit",
+                 res: false
+             },
+             {
+                 name: 'test2_case5_3',
+                 args: "-f "+INPUT2_PATH+" -green monitorid -red orid",
+                 res: false
+             },
     ];
 
 function test() {
