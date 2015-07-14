@@ -1,6 +1,6 @@
 {
   "name": "log-color-highlight",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Node Js command line utility for highlighting log files",
   "main": "index.js",
   "repository": {
