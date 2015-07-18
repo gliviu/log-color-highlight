@@ -258,8 +258,36 @@ function validateAndBuildOptions (args) {
     return true;
 }
 
-
-function processLine (line) {
+/**
+ * Text highlighting algorithm.
+ * Iterates all highlightOptions and applies them in order such that last one will override the others.
+ * For each step there is
+ * a1..a2 - start/end match indexes for previous highlight option (HA) 
+ * b1..b2 - start/end match indexes for previous highlight option (HB)
+ * As a general rule b1-b2 takes precedence over a1-a2. Following cases are possible.
+ * Case1: a1...a2...b1...b2  or b1...b2...a1...a2   
+ *     Both intervals are distinct. They will be highlighted separately.
+ *     HA - a1...a2
+ *     HB - b1...b2 
+ * Case2: b1...a1...a2...b2
+ *     HA will be removed. 
+ *     HB - b1...b2
+ * Case3: b1...a1...b2...a2
+ *     HB will override first section of HA 
+ *     HB - b1...b2
+ *     HA - b2...a2
+ * Case4: a1...b1...a2...b2
+ *     HB will override last section of HA 
+ *     HB - b1...b2
+ *     HA - a1...b1
+ * Case5: a1...b1...b2...a2
+ *     HB situated in the middle of HA. Three highlighting sections will be created: 
+ *     HA - a1...b1
+ *     HB - b1...b2
+ *     HA - b2...a2
+ *     
+ */
+function highlightLine (line) {
     var sections = [];
     for(var i = 0; i<highlightOptions.length; i++){
         var highlightOption = highlightOptions[i];
@@ -326,25 +354,13 @@ function processLine (line) {
     return result.join('');
 }
 
-//function processLine (line) {
-//    for(var i = 0; i<highlightOptions.length; i++){
-//        var highlightOption = highlightOptions[i];
-//        if(highlightOption){
-//            line = line.replace(highlightOption.patternRegex, function (v) {
-//                return highlightOption.colorAnsi.open+v+highlightOption.colorAnsi.close;
-//            });
-//        }
-//    }
-//    return line;
-//}
-
 function buildLiner (writer, eventEmitter) {
     var liner = require('./liner')();
 
     liner.on('readable', function () {
         var line;
         while (line = liner.read()) {
-            writer.write(processLine(line)+'\n');
+            writer.write(highlightLine(line)+'\n');
         }
     });
     liner.on('end', function () {
