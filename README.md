@@ -17,6 +17,9 @@ lch -f file -red error warn -green success
 tail -f file | lch -red error warn -green success
 
 ```
+Work in windows and unix environments.
+Cygwin is not supported due to this terminal/console bug - https://github.com/joyent/node/issues/6459
+On windows I use https://www.npmjs.com/package/file-tail as tail command - ``` nftail -f file | lch -red error warn -green success ```
 
 ## Options
 ```
