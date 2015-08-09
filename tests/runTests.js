@@ -10,6 +10,7 @@ var stringArgv = require('../string-argv');
 
 var INPUT1_PATH = path.normalize(__dirname + '/input1.txt');
 var INPUT2_PATH = path.normalize(__dirname + '/input2.txt');
+var INPUT3_PATH = path.normalize(__dirname + '/input3.txt');
 
 var count = 0, failed = 0, successful = 0;
 
@@ -26,10 +27,20 @@ function passed (value) {
 var currentTest = 0;
 var tests = [
              {
-                 name: 'test1',
+                 name: 'test1_case1',
                  args: "-f "+INPUT1_PATH+" -blue.bold SysMonWidget -blue 9084 -yellow ' \\d\\d\\d' -RED.bold '.*at .*?(\\d|native method)\\)' -GREEN.BOLD 'start timer activated' -BGGREEN.BOLD.WHITE end",
                  res: false
              },
+             {
+                 name: 'test1_case2',
+                 args: "-f "+INPUT3_PATH+" -green 1234 123456",
+                 res: false
+             },
+             {
+                 name: 'test1_case3',
+                 args: "-f "+INPUT3_PATH+" -green 1234 123456 5678",
+                 res: false
+             }, 
              
              // TEST SET 2 - processLine()
              // Case 1
@@ -123,8 +134,8 @@ function test() {
     handler.on('finished', function(){
         var output = writer.toString();
         var expected = fs.readFileSync(__dirname + '/expected/' + t.name + '.txt', 'utf8');
-        if (t.name == 'test2_1') {
-          console.log(output);
+        if (t.name == 'test1_case3') {
+//          console.log(output);
         }
         var res = output === expected;
         t.res = res;

@@ -415,9 +415,9 @@ function execute (args, writer) {
     for(var i=0; i<highlightOptions.length; i++){
         var highlightOption = highlightOptions[i];
         if(highlightOption){
-            // Cache pattern as regex
+            // Cache pattern as regex.
             var patternListStr = '';
-            for (var j = 0; j < highlightOption.patternArray.length; j++) {
+            for (var j = highlightOption.patternArray.length-1; j >= 0 ; j--) { // Iterate in reverse order because we want that last pattern to override the previous.
                 if(patternListStr.length>0){
                     patternListStr+='|';
                 }
@@ -430,8 +430,6 @@ function execute (args, writer) {
         }
         
     }
-
-//    console.log(JSON.stringify(highlightOptions, null, 2));
 
     var eventEmitter = new events.EventEmitter();
     var liner = buildLiner(writer, eventEmitter);
