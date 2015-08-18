@@ -9,6 +9,11 @@ var NO_LINE_START_REGEX = /^[^\-].*$/; // Text that does not start with a dash.
 var LINE_START_REGEX = /^-.*$/;
 
 
+var validModifiers = {
+        'ci' : true, // case insensitive
+        'cs' : true, // case sensitive
+};
+
 var validColors = {
         'black' : true,
         'red' : true,
@@ -56,6 +61,7 @@ var argHelp; // --h, --help
 //    "patternArray": List of patterns as text
 //    "patternRegex": Regex representing concatenation of patternArray 
 //    "colorText": Textual color combination
+//    "modifiers": {ci:true}
 //    "colorAnsi": {open:'ansi open codes', close:'ansi close codes'}
 //  },
 // }
@@ -81,13 +87,13 @@ function printHelp () {
     console.log("\t-f filePath\tInput file path. If this is not provided, standard input is used.");
     console.log("\t-c configPath\tPath to configuration file. See "+bold("Highlight pattern")+" below.");
     console.log("\t-s style\tImplicit style. See "+gray('Styles')+" below for valid value.");
-    console.log("\t-cs\t\tCase sensitive.");
+    console.log("\t-cs\t\tCase sensitive. By default text matching is done case insensitive.");
     console.log("\t-h --help\tPrints this help message.");
     console.log("");
     
     console.log(bold("  Highlight pattern:")+" [pattern1 pattern2 ...] [-color pattern1 pattern2 ...] ....");
     console.log("\tpattern\tRegex pattern. If no color is specified, by default it is highlighted in Red.");
-    console.log("\tcolor\tHighlighting color or style. Can be combined using dot. Allowed values:");
+    console.log("\tcolor\tHighlighting color, style or modifier. Allowed values:");
     process.stdout.write(gray("\t\tColors:"));
     for(var color in validColors){
         process.stdout.write(" "+color);
@@ -100,6 +106,8 @@ function printHelp () {
     for(var color in validStyles){
         process.stdout.write(" "+color);
     }
+    process.stdout.write(gray("\n\t\tModifiers:"));
+    process.stdout.write(" cs ci (toggle for case sensitivity)");
     console.log('');
     console.log('');
     
@@ -107,6 +115,7 @@ function printHelp () {
     console.log("\ttail -f file | lch error warn");
     console.log("\ttail -f file | lch -cs ERROR WARN");
     console.log("\ttail -f file | lch -red error -yellow warn");
+    console.log("\tMore samples at https://www.npmjs.com/package/log-color-highlight#examples");
 }
 
 //Receives 'color1.color2...'.
@@ -124,16 +133,16 @@ function buildAnsiColor(colorsStr){
 }
 
 
-function addHighlightPattern (highlightColor, highlightPatternArray) {
+function addHighlightPattern (highlightColor, modifiers, highlightPatternArray) {
     var i;
     if(highlightColor===DEFAULT_HIGHLIGHT_COLOR_PARAM){
         if(highlightOptions[0]===null){
-            highlightOptions[0] = {colorText: null, patternArray: [], pattern: null, color: null};
+            highlightOptions[0] = {colorText: null, patternArray: [], pattern: null, color: null, modifiers: {}};
         }
         i=0;
         highlightOptions[0].colorText = DEFAULT_HIGHLIGHT_COLOR;
     } else{
-        highlightOptions.push({colorText: null, patternArray: [], pattern: null, color: null});
+        highlightOptions.push({colorText: null, patternArray: [], pattern: null, color: null, modifiers: modifiers});
         i = highlightOptions.length-1;
         highlightOptions[i].colorText = highlightColor;
     }
@@ -141,18 +150,30 @@ function addHighlightPattern (highlightColor, highlightPatternArray) {
     highlightOptions[i].patternArray = highlightOptions[i].patternArray.concat(highlightPatternArray);
 }
 
-function validateAndBuildColor(colorText){
-    var colorTextArray = colorText.split('.');
+function validateAndBuildColor(colorTextParam){
+    var colorText = '';
+    var modifiers = {};
+    var colorTextArray = colorTextParam.split('.');
     for(var i=0; i<colorTextArray.length; i++){
         var subcolorText = colorTextArray[i];
         var validColor = validColors[subcolorText];
         var validStyle = validStyles[subcolorText];
         var validBgColor = validBgColors[subcolorText];
-        if(!(validColor || validStyle || validBgColor)){
+        var validModifier = validModifiers[subcolorText];
+        if(!(validColor || validStyle || validBgColor || validModifier)){
             return false;
         }
+        
+        if(validModifier){
+            modifiers[subcolorText] = true;
+        } else{
+            if(colorText!==''){
+                colorText+='.';
+            }
+            colorText+=subcolorText;
+        }
     }
-    return true;
+    return {colorText: colorText, modifiers: modifiers};
 }
 
 function validateAndBuildOptions (args) {
@@ -200,10 +221,11 @@ function validateAndBuildOptions (args) {
             if (arg2 == null) {
                 return error("Default style required for '"+arg1+"'.");
             }
-            if(!validateAndBuildColor(arg2)){
+            var colorInfo = validateAndBuildColor(arg2);
+            if(colorInfo===false){
                 return error("Default style '"+arg2+"' is not valid.");
             }
-            argDefaultStyle = arg2;
+            argDefaultStyle = colorInfo.colorText;
             i+=2;
             continue;
         }
@@ -215,7 +237,7 @@ function validateAndBuildOptions (args) {
 
         // Default color highlight pattern.
         if (NO_LINE_START_REGEX.test(arg1)) {
-            addHighlightPattern(DEFAULT_HIGHLIGHT_COLOR_PARAM, [arg1]);
+            addHighlightPattern(DEFAULT_HIGHLIGHT_COLOR_PARAM, {}, [arg1]);
             i++;
             continue;
         }
@@ -230,9 +252,11 @@ function validateAndBuildOptions (args) {
                         return c1.toLowerCase() + c2.toUpperCase() + c3.toLowerCase();
                     });
 
-            if(!validateAndBuildColor(colorText)){
+            var colorInfo = validateAndBuildColor(colorText);
+            if(colorInfo===false){
                 return error("Wrong option: '"+arg1+"'");
             }
+            colorText = colorInfo.colorText;
             // Get all following arguments
             var patternsArray = [];
             for (var j = i+1; j < args.length; j++) {
@@ -247,7 +271,7 @@ function validateAndBuildOptions (args) {
                 return error("At least one pattern to highlight is required for '"+arg1+"'.");
             }
             
-            addHighlightPattern(colorText, patternsArray);
+            addHighlightPattern(colorText, colorInfo.modifiers, patternsArray);
             i=j;
             continue;
         }
@@ -403,18 +427,27 @@ function execute (args, writer) {
         printHelp();
         return;
     }
-    
     if(highlightOptions.length===1 && highlightOptions[0]===null){
         console.log(error("No highlight pattern specified"));
         printHelp();
         return;
     }
     
+    
 
     // Transform highlight pattern into valid regexp.
     for(var i=0; i<highlightOptions.length; i++){
         var highlightOption = highlightOptions[i];
         if(highlightOption){
+            // Regex case option
+            var caseOption = argCaseSensitive?'':'i'; // Case sensitive is default regex option
+            if(highlightOption.modifiers['cs']){
+                caseOption = '';
+            }
+            if(highlightOption.modifiers['ci']){
+                caseOption = 'i';
+            }
+            
             // Cache pattern as regex.
             var patternListStr = '';
             for (var j = highlightOption.patternArray.length-1; j >= 0 ; j--) { // Iterate in reverse order because we want that last pattern to override the previous.
@@ -423,7 +456,7 @@ function execute (args, writer) {
                 }
                 patternListStr+=highlightOption.patternArray[j];
             }
-            highlightOption.patternRegex = new RegExp(patternListStr, argCaseSensitive?'g':'gi');
+            highlightOption.patternRegex = new RegExp(patternListStr, 'g'+caseOption);
 
             // Cache color
             highlightOption.colorAnsi = buildColorFromText(highlightOption.colorText);
@@ -431,6 +464,8 @@ function execute (args, writer) {
         
     }
 
+//    console.log(JSON.stringify(highlightOptions, null, 2));
+        
     var eventEmitter = new events.EventEmitter();
     var liner = buildLiner(writer, eventEmitter);
     if (argFile) {

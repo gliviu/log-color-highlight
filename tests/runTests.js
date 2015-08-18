@@ -5,12 +5,12 @@ var path = require('path');
 var util = require('util');
 var execute = require(__dirname + '/../index.js');
 var streams = require('memory-streams');
-var async = require('async');
 var stringArgv = require('../string-argv');
 
 var INPUT1_PATH = path.normalize(__dirname + '/input1.txt');
 var INPUT2_PATH = path.normalize(__dirname + '/input2.txt');
 var INPUT3_PATH = path.normalize(__dirname + '/input3.txt');
+var INPUT4_PATH = path.normalize(__dirname + '/input4.txt');
 
 var count = 0, failed = 0, successful = 0;
 
@@ -123,7 +123,83 @@ var tests = [
                  args: "-f "+INPUT2_PATH+" -green monitorid -red orid",
                  res: false
              },
+             
+             // TEST SET 3 - Modifiers - ci, cs
+             {
+                 name: 'test3_case1',
+                 args: "-f "+INPUT4_PATH+" -green monitorid 'On receive' -red ctrl",
+                 res: false
+             },
+             {
+                 name: 'test3_case2',
+                 args: "-f "+INPUT4_PATH+" -cs -green monitorid 'On receive' -red ctrl",
+                 res: false
+             },
+             {
+                 name: 'test3_case3',
+                 args: "-f "+INPUT4_PATH+" -green monitorid 'On receive' -cs -red ctrl",
+                 res: false
+             },
+             {
+                 name: 'test3_case4',
+                 args: "-f "+INPUT4_PATH+" -green monitorid 'On receive' -red ctrl -cs",
+                 res: false
+             },
+             {
+                 name: 'test3_case5',
+                 args: "-f "+INPUT4_PATH+" -green.ci monitorid 'On receive' -red ctrl",
+                 res: false
+             },
+             {
+                 name: 'test3_case6',
+                 args: "-f "+INPUT4_PATH+" -ci.green monitorid 'On receive' -red.ci ctrl",
+                 res: false
+             },
+             {
+                 name: 'test3_case7',
+                 args: "-f "+INPUT4_PATH+" -cs.green monitorid 'On receive' -red.cs ctrl",
+                 res: false
+             },
+             {
+                 name: 'test3_case8',
+                 args: "-f "+INPUT4_PATH+" -cs -cs.green monitorid 'On receive' -red.cs ctrl",
+                 res: false
+             },
+             {
+                 name: 'test3_case9',
+                 args: "-f "+INPUT4_PATH+" -cs -ci.green monitorid 'On receive' -red.cs ctrl",
+                 res: false
+             },
+             {
+                 name: 'test3_case10',
+                 args: "-f "+INPUT4_PATH+" -cs -ci.green monitorid 'On receive' -red.ci ctrl",
+                 res: false
+             },
+             {
+                 name: 'test3_case11',
+                 args: "-f "+INPUT4_PATH+" -cs -bold.ci.green monitorid 'On receive' -red.ci.bold ctrl",
+                 res: false
+             },
+             {
+                 name: 'test3_case12',
+                 args: "-f "+INPUT4_PATH+" -cs -bold.ci.cs.green monitorid 'On receive' -red.ci.bold ctrl",
+                 res: false
+             },
+             {
+                 name: 'test3_case13',
+                 args: "-f "+INPUT4_PATH+" -cs -bold.ci.ci.green monitorid 'On receive' -red.ci.bold ctrl",
+                 res: false
+             },
+             {
+                 name: 'test3_case14',
+                 args: "-f "+INPUT4_PATH+" -cs -bold.cs.cs.green monitorid 'On receive' -red.ci.bold ctrl",
+                 res: false
+             },
     ];
+
+function escape(str){
+    return str.replace("\r\n", "").replace("\n", "");
+}
 
 function test() {
     var t = tests[currentTest++];
@@ -133,11 +209,11 @@ function test() {
     var handler = execute(args, writer);
     handler.on('finished', function(){
         var output = writer.toString();
-        var expected = fs.readFileSync(__dirname + '/expected/' + t.name + '.txt', 'utf8');
-        if (t.name == 'test1_case3') {
+        var expected = fs.readFileSync(__dirname + '/expected/' + t.name + '.txt', 'utf8').replace("\r\n|\n", "");
+        if (t.name == 'test3_case1') {
 //          console.log(output);
         }
-        var res = output === expected;
+        var res = escape(output) === escape(expected);
         t.res = res;
         if(currentTest<tests.length){
             test();

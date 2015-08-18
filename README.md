@@ -17,12 +17,12 @@ lch -f file -red error warn -green success
 tail -f file | lch -red error warn -green success
 
 ```
-Work in windows and unix environments.
+Works in windows and unix environments.
 Cygwin is not supported due to this terminal/console bug - https://github.com/joyent/node/issues/6459
 On windows I use https://www.npmjs.com/package/file-tail as tail command - ``` nftail -f file | lch -red error warn -green success ```
 
 ## Options
-```
+```text
   Usage: lch [options] Highlight pattern
 
   Options:
@@ -34,10 +34,11 @@ On windows I use https://www.npmjs.com/package/file-tail as tail command - ``` n
 
   Highlight pattern: [pattern1 pattern2 ...] [-color pattern1 pattern2 ...] ....
         pattern Regex pattern. If no color is specified, by default it is highlighted in Red.
-        color   Highlighting color or style. Can be combined using dot. Allowed values:
+        color   Highlighting color, style or modifier. Allowed values:
                 Colors: black red green yellow blue magenta cyan white gray
                 Background colors: bgBlack bgRed bgGreen bgYellow bgBlue bgMagenta bgCyan bgWhite
                 Styles: reset bold dim italic underline inverse hidden strikethrough
+                Modifiers: cs ci (toggle for case sensitivity)
 
 ```
 
@@ -50,18 +51,51 @@ On windows I use https://www.npmjs.com/package/file-tail as tail command - ``` n
 
 * Implicit style ```echo "implicit style" | lch -s bold -red implicit -red.reset style```
 
-* Force case sensitive ```echo "case sensitive" | lch -cs sensitive CASE```
+* Force case sensitive globally
+```echo "case sensitive" | lch -cs sensitive CASE```
+
+* Toggle case sensitivity per pattern using cs and ci modifiers
+```echo "case sensitive Case Sensitive" | lch -green.cs sensitive -red case```
+```echo "case sensitive Case Sensitive" | lch -cs -green sensitive -red.ci.bold case```
 
 * Use regex ```echo "using regular expressions" | lch -green .*regular -blue exp.*```
 
 * Later options take precedence over previous ones
 ``` echo "log color highlight" | lch -green "log color highlight" -blue "color" -red "lor hi" ```
+Supports nested highlights:
+``` echo "log color highlight" | lch -blue "color" -red "log color" ```
+
+## Configuration file syntax
+Use configuration file for complex highlighting. The config file supports command line syntax - any command line parameter string is a valid config file. In addition it allows # as comments and blank line delimiters.
+
+``` echo "2015-08-18 [ERROR] On receive (ctrl) - monitorId: 3e5e8426" | lch -c lch.conf ```
+
+
+```bash
+# lch.conf
+# Success
+-green.bold start starting success successfully
+
+# Errors
+-red.bold error errors erroneous wrong
+
+# Warnings
+-yellow.bold warn warning deprecated
+```
+Produces the same result as 
+``` echo "2015-08-18 [ERROR] On receive (ctrl) - monitorId: 3e5e8426" | lch -green.bold start starting success successfully -red.bold error errors erroneous wrong -yellow.bold warn warning deprecated```
 
 
 ## Test
-```
+```bash
 cd log-color-highlight
 npm install
 npm test
 ```
 
+## Alternatives
+Lch doesn't fit? Try one of the following.
+* [colout](https://github.com/nojhan/colout/tree/master)
+* [ccze](https://github.com/cornet/ccze)
+* [colorize](https://github.com/raszi/colorize)
+* `grep --color`
