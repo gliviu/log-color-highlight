@@ -12,6 +12,7 @@ var LINE_START_REGEX = /^-.*$/;
 var validModifiers = {
         'ci' : true, // case insensitive
         'cs' : true, // case sensitive
+        'esc' : true, // escape regexp characters
 };
 
 var validColors = {
@@ -107,7 +108,8 @@ function printHelp () {
         process.stdout.write(" "+color);
     }
     process.stdout.write(gray("\n\t\tModifiers:"));
-    process.stdout.write(" cs ci (toggle for case sensitivity)");
+    process.stdout.write("\n\t\t\tcs ci - toggle for case sensitivity");
+    process.stdout.write("\n\t\t\tesc  - escape regex special characters");
     console.log('');
     console.log('');
     
@@ -447,6 +449,7 @@ function execute (args, writer) {
             if(highlightOption.modifiers['ci']){
                 caseOption = 'i';
             }
+            var shouldEscape = highlightOption.modifiers['esc']===true;
             
             // Cache pattern as regex.
             var patternListStr = '';
@@ -454,7 +457,11 @@ function execute (args, writer) {
                 if(patternListStr.length>0){
                     patternListStr+='|';
                 }
-                patternListStr+=highlightOption.patternArray[j];
+                if(shouldEscape){
+                    patternListStr+= escapeRegExp(highlightOption.patternArray[j]);
+                } else{
+                    patternListStr+=highlightOption.patternArray[j];
+                }
             }
             highlightOption.patternRegex = new RegExp(patternListStr, 'g'+caseOption);
 
@@ -482,6 +489,11 @@ function execute (args, writer) {
     }
     
     return eventEmitter;
+}
+
+// https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions
+function escapeRegExp(string){
+    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 module.exports = execute;
