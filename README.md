@@ -101,6 +101,7 @@ Use configuration file for complex highlighting. The config file supports comman
 -yellow.bold warn warning warnings deprecated
 ```
 Produces the same result as 
+
 ``` echo "2015-08-18 [ERROR] On receive (ctrl) - monitorId: 3e5e8426" | lch -green.bold start starting success successfully -red.bold error errors erroneous wrong -yellow.bold warn warning deprecated```
 
 
