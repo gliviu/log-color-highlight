@@ -195,6 +195,33 @@ var tests = [
                  args: "-f "+INPUT4_PATH+" -cs -bold.cs.cs.green monitorid 'On receive' -red.ci.bold ctrl",
                  res: false
              },
+             
+             // TEST SET 4 - Modifiers - esc
+             {
+                 name: 'test4_case1',
+                 args: "-f "+INPUT4_PATH+" -green 'receive (ctrl) -'",
+                 res: false
+             },
+             {
+                 name: 'test4_case2',
+                 args: "-f "+INPUT4_PATH+" -esc.green 'receive (ctrl) -'",
+                 res: false
+             },
+             {
+                 name: 'test4_case3',
+                 args: "-f "+INPUT4_PATH+" -green.esc.bold 'receive (ctrl) -'",
+                 res: false
+             },
+             {
+                 name: 'test4_case4',
+                 args: "-f "+INPUT4_PATH+" -green 'receive \\(ctrl\\) -'",
+                 res: false
+             },
+             {
+                 name: 'test4_case5',
+                 args: "-f "+INPUT4_PATH+" -green.esc 'receive \\(ctrl\\) -'",
+                 res: false
+             },
     ];
 
 function escape(str){
