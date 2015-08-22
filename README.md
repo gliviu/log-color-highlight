@@ -18,8 +18,8 @@ tail -f file | lch -red error warn -green success
 
 ```
 Works in windows and unix environments.
-Cygwin is not supported due to this terminal/console bug - https://github.com/joyent/node/issues/6459
-On windows I use https://www.npmjs.com/package/file-tail as tail command - ``` nftail -f file | lch -red error warn -green success ```
+Cygwin is not supported due to this terminal/console [bug](https://github.com/joyent/node/issues/6459)
+On windows I use [file-tail](https://www.npmjs.com/package/file-tail) as tail command - ``` nftail -f file | lch -red error warn -green success ```
 
 ## Options
 ```text
@@ -38,7 +38,9 @@ On windows I use https://www.npmjs.com/package/file-tail as tail command - ``` n
                 Colors: black red green yellow blue magenta cyan white gray
                 Background colors: bgBlack bgRed bgGreen bgYellow bgBlue bgMagenta bgCyan bgWhite
                 Styles: reset bold dim italic underline inverse hidden strikethrough
-                Modifiers: cs ci (toggle for case sensitivity)
+                Modifiers:
+	                cs ci - toggle for case sensitivity
+	                esc - escape regex special characters
 
 ```
 
@@ -60,13 +62,17 @@ On windows I use https://www.npmjs.com/package/file-tail as tail command - ``` n
 
 * Use regex ```echo "using regular expressions" | lch -green .*regular -blue exp.*```
 
+* Escape regex special characters. Following examples are equivalent.
+```echo "[ERROR] On receive (ctrl) - monitorId" | lch -red.esc [error] -cyan.esc "receive (ctrl) - monitorId" ```
+```echo "[ERROR] On receive (ctrl) - monitorId" | lch -red \[error\] -cyan "receive \(ctrl\) - monitorId" ```
+
 * Later options take precedence over previous ones
 ``` echo "log color highlight" | lch -green "log color highlight" -blue "color" -red "lor hi" ```
 Supports nested highlights:
 ``` echo "log color highlight" | lch -blue "color" -red "log color" ```
 
 ## Configuration file syntax
-Use configuration file for complex highlighting. The config file supports command line syntax - any command line parameter string is a valid config file. In addition it allows # as comments and blank line delimiters.
+Use configuration file for complex highlighting. The config file supports command line syntax - any command line parameter string is a valid config file. In addition it allows # as comments and blank line  or tabs as delimiters.
 
 ``` echo "2015-08-18 [ERROR] On receive (ctrl) - monitorId: 3e5e8426" | lch -c lch.conf ```
 
@@ -74,13 +80,18 @@ Use configuration file for complex highlighting. The config file supports comman
 ```bash
 # lch.conf
 # Success
--green.bold start starting success successfully
+-green.bold success successful successfully
+-green.bold "Operation.*completed"
 
 # Errors
--red.bold error errors erroneous wrong
+-red.bold
+	"Operation.*failed"
+	err error errors erroneous
+	wrong
+	fail failure
 
 # Warnings
--yellow.bold warn warning deprecated
+-yellow.bold warn warning warnings deprecated
 ```
 Produces the same result as 
 ``` echo "2015-08-18 [ERROR] On receive (ctrl) - monitorId: 3e5e8426" | lch -green.bold start starting success successfully -red.bold error errors erroneous wrong -yellow.bold warn warning deprecated```
@@ -99,3 +110,6 @@ Lch doesn't fit? Try one of the following.
 * [ccze](https://github.com/cornet/ccze)
 * [colorize](https://github.com/raszi/colorize)
 * `grep --color`
+* [grc](http://korpus.juls.savba.sk/~garabik/software/grc.html)
+* [colorex](https://bitbucket.org/linibou/colorex/wiki/Home)
+* [lwatch](http://freecode.com/projects/lwatch)
