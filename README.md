@@ -57,18 +57,25 @@ On windows I use [file-tail](https://www.npmjs.com/package/file-tail) as tail co
 ```echo "case sensitive" | lch -cs sensitive CASE```
 
 * Toggle case sensitivity per pattern using cs and ci modifiers
+
 ```echo "case sensitive Case Sensitive" | lch -green.cs sensitive -red case```
+
 ```echo "case sensitive Case Sensitive" | lch -cs -green sensitive -red.ci.bold case```
 
 * Use regex ```echo "using regular expressions" | lch -green .*regular -blue exp.*```
 
 * Escape regex special characters. Following examples are equivalent.
+
 ```echo "[ERROR] On receive (ctrl) - monitorId" | lch -red.esc [error] -cyan.esc "receive (ctrl) - monitorId" ```
+
 ```echo "[ERROR] On receive (ctrl) - monitorId" | lch -red \[error\] -cyan "receive \(ctrl\) - monitorId" ```
 
 * Later options take precedence over previous ones
+
 ``` echo "log color highlight" | lch -green "log color highlight" -blue "color" -red "lor hi" ```
+
 Supports nested highlights:
+
 ``` echo "log color highlight" | lch -blue "color" -red "log color" ```
 
 ## Configuration file syntax
