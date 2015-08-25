@@ -222,6 +222,33 @@ var tests = [
                  args: "-f "+INPUT4_PATH+" -green.esc 'receive \\(ctrl\\) -'",
                  res: false
              },
+             
+             // TEST SET 5 - Default highlight
+             {
+                 name: 'test5_case1',
+                 args: "-f "+INPUT4_PATH+" ctrl monitor",
+                 res: false
+             },
+             {
+                 name: 'test5_case2',
+                 args: "-f "+INPUT4_PATH+" -blue ctrl monitor",
+                 res: false
+             },
+             {
+                 name: 'test5_case3',
+                 args: "-f "+INPUT4_PATH+" id -blue ctrl monitor",
+                 res: false
+             },
+             {
+                 name: 'test5_case4',
+                 args: "-f "+INPUT4_PATH+" id -blue ctrl monitor -cs receive",
+                 res: false
+             },
+             {
+                 name: 'test5_case5',
+                 args: "-f "+INPUT4_PATH+" Id Ctrl -blue ctrl monitor -cs receive 3e5",
+                 res: false
+             },
     ];
 
 function escape(str){
