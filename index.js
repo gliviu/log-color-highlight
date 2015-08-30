@@ -1,13 +1,16 @@
 var ansi = require('ansi-styles');
 var fs = require('fs');
-var events = require('events');
 var pjson = require('./package.json');
 
 var DEFAULT_HIGHLIGHT_COLOR = 'red'; // If no color is specified, use red.
 var DEFAULT_HIGHLIGHT_COLOR_PARAM = 'DEFAULT_HIGHLIGHT_COLOR_PARAM';
-var NO_LINE_START_REGEX = /^[^\-].*$/; // Text that does not start with a dash.
-var LINE_START_REGEX = /^-.*$/;
+var NO_DASH_START_REGEX = /^[^\-].*$/; // Text that does not start with a dash.
+var DASH_START_REGEX = /^-.*$/;
 
+//filled by user parameters
+var colorPresets = {
+        
+};
 
 var validModifiers = {
         'ci' : true, // case insensitive
@@ -78,46 +81,53 @@ function gray(message){
     return ansi.gray.open+message+ansi.gray.close;
 }
 
-function printHelp () {
-    console.log("  log-color-highlight v"+pjson.version);
+function printHelp (writer) {
+    log(writer, "  log-color-highlight v"+pjson.version);
 
-    console.log(bold("  Usage:")+" lch [options] Highlight pattern");
-    console.log("");
+    log(writer, bold("  Usage:")+" lch [options] Highlight pattern");
+    log(writer, "");
     
-    console.log(bold("  Options:"));
-    console.log("\t-f filePath\tInput file path. If this is not provided, standard input is used.");
-    console.log("\t-c configPath\tPath to configuration file. See "+bold("Highlight pattern")+" below.");
-    console.log("\t-s style\tImplicit style. See "+gray('Styles')+" below for valid value.");
-    console.log("\t-cs\t\tCase sensitive. By default text matching is done case insensitive.");
-    console.log("\t-h --help\tPrints this help message.");
-    console.log("");
+    log(writer, bold("  Options:"));
+    log(writer, "\t-f filePath\tInput file path. If this is not provided, standard input is used.");
+    log(writer, "\t-c configPath\tPath to configuration file. See "+bold("Highlight pattern")+" below.");
+    log(writer, "\t-s style\tImplicit style. See "+gray('Styles')+" below for valid value.");
+    log(writer, "\t-cs\t\tCase sensitive. By default text matching is done case insensitive.");
+    log(writer, "\t-p\t\tAdd color or style preset.");
+    log(writer, "\t-h --help\tPrints this help message.");
+    log(writer, "");
     
-    console.log(bold("  Highlight pattern:")+" [pattern1 pattern2 ...] [-color pattern1 pattern2 ...] ....");
-    console.log("\tpattern\tRegex pattern. If no color is specified, by default it is highlighted in Red.");
-    console.log("\tcolor\tHighlighting color, style or modifier. Allowed values:");
-    process.stdout.write(gray("\t\tColors:"));
+    log(writer, bold("  Highlight pattern:")+" [pattern1 pattern2 ...] [-color pattern1 pattern2 ...] ....");
+    log(writer, "\tpattern\tRegex pattern. If no color is specified, by default it is highlighted in Red.");
+    log(writer, "\tcolor\tHighlighting color, style, preset or modifier. Allowed values:");
+    writer.write(gray("\t\tColors:"));
     for(var color in validColors){
-        process.stdout.write(" "+color);
+        writer.write(" "+color);
     }
-    process.stdout.write(gray("\n\t\tBackground colors:"));
+    writer.write(gray("\n\t\tBackground colors:"));
     for(var color in validBgColors){
-        process.stdout.write(" "+color);
+        writer.write(" "+color);
     }
-    process.stdout.write(gray("\n\t\tStyles:"));
+    writer.write(gray("\n\t\tStyles:"));
     for(var color in validStyles){
-        process.stdout.write(" "+color);
+        writer.write(" "+color);
     }
-    process.stdout.write(gray("\n\t\tModifiers:"));
-    process.stdout.write("\n\t\t\tcs ci - toggle for case sensitivity");
-    process.stdout.write("\n\t\t\tesc  - escape regex special characters");
-    console.log('');
-    console.log('');
+    writer.write(gray("\n\t\tPresets: any preset defined with '-p' parameter"));
+    writer.write(gray("\n\t\tModifiers:"));
+    writer.write("\n\t\t\tcs ci - toggle for case sensitivity");
+    writer.write("\n\t\t\tesc  - escape regex special characters");
+    log(writer, bold("  Presets: -p presetName=def -p presetName=def ..."));
+    log(writer, bold("  Preset name is formed by alphanumeric characters, dash and underscores."));
+    log(writer, bold("  Preset definition follow the same rule as for 'Highlight pattern'."));
+    log(writer, '');
+    log(writer, '');
     
-    console.log(bold("  Examples:"));
-    console.log("\ttail -f file | lch error warn");
-    console.log("\ttail -f file | lch -cs ERROR WARN");
-    console.log("\ttail -f file | lch -red error -yellow warn");
-    console.log("\tMore samples at https://www.npmjs.com/package/log-color-highlight#examples");
+    log(writer, bold("  Examples:"));
+    log(writer, "\tHighlight 'error' and 'warn' in default color (red)");
+    log(writer, "\ttail -f file | lch error warn");
+    log(writer, "\tHighlight 'error', 'errors' and 'warn' in differen colors");
+    log(writer, "\ttail -f file | lch -red.bold error errors -yellow warn warning warnings");
+    log(writer, "\ttail -f file | lch -p errors=bgred.white -p success=bgtreen.black -errors error -yellow warn");
+    log(writer, "\tMore samples at https://www.npmjs.com/package/log-color-highlight#examples");
 }
 
 //Receives 'color1.color2...'.
@@ -162,12 +172,21 @@ function validateAndBuildColor(colorTextParam){
         var validStyle = validStyles[subcolorText];
         var validBgColor = validBgColors[subcolorText];
         var validModifier = validModifiers[subcolorText];
-        if(!(validColor || validStyle || validBgColor || validModifier)){
+        var validPreset = colorPresets[subcolorText];
+        if(!(validColor || validStyle || validBgColor || validModifier || validPreset)){
             return false;
         }
         
         if(validModifier){
             modifiers[subcolorText] = true;
+        } else if(validPreset){
+            if(colorText!==''){
+                colorText+='.';
+            }
+            colorText+=validPreset.colorText;
+            for ( var presetModifier in validPreset.modifiers) {
+                modifiers[presetModifier] = true;
+            }
         } else{
             if(colorText!==''){
                 colorText+='.';
@@ -214,6 +233,27 @@ function validateAndBuildOptions (args) {
             i += 2;
             continue;
         }
+        if (arg1 === '-p') {
+            if (arg2 == null) {
+                return error("Preset value required. Correct format sample: '-p fail=red.bold -p success=green.bold'.");
+            }
+
+            var match = /^([a-zA-Z0-9\-_]+)=([a-zA-Z.]+)$/.exec(arg2);
+            if(!match){
+                return error("Preset is not defined correctly. Correct format sample: '-p fail=red.bold -p success=green.bold'.");
+            }
+            var presetName = match[1].toLowerCase();
+            var presetValue = match[2].toLowerCase(); // normalize
+            presetValue = fixBackgroundColor(presetValue);
+            var colorInfo = validateAndBuildColor(presetValue);
+            if(colorInfo===false){
+                return error("Preset value '"+presetValue+"' is not valid. Correct format sample: '-p fail=red.bold -p success=green.bold'.");
+            }
+            colorPresets[presetName] = colorInfo;
+            
+            i += 2;
+            continue;
+        }
         if (arg1 === '-cs') {
             argCaseSensitive = true;
             i++;
@@ -221,11 +261,13 @@ function validateAndBuildOptions (args) {
         }
         if (arg1 === '-s') {
             if (arg2 == null) {
-                return error("Default style required for '"+arg1+"'.");
+                return error("Default style required for '"+arg1+"'. Correct format sample: '-s bold.italic'.");
             }
+            arg2 = arg2.toLowerCase(); // normalize
+            arg2 = fixBackgroundColor(arg2);
             var colorInfo = validateAndBuildColor(arg2);
             if(colorInfo===false){
-                return error("Default style '"+arg2+"' is not valid.");
+                return error("Default style '"+arg2+"' is not valid. Correct format sample: '-s bold.italic'.");
             }
             argDefaultStyle = colorInfo.colorText;
             i+=2;
@@ -238,21 +280,17 @@ function validateAndBuildOptions (args) {
         }
 
         // Default color highlight pattern.
-        if (NO_LINE_START_REGEX.test(arg1)) {
+        if (NO_DASH_START_REGEX.test(arg1)) {
             addHighlightPattern(DEFAULT_HIGHLIGHT_COLOR_PARAM, {}, [arg1]);
             i++;
             continue;
         }
         
         // Specified color
-        if (LINE_START_REGEX.test(arg1)) {
+        if (DASH_START_REGEX.test(arg1)) {
             var colorText = arg1.substring(1); // strip leading dash
             colorText = colorText.toLowerCase(); // normalize
-            colorText = colorText.replace( // upercase third letter for background colors (ie. bgGreen)
-                    /(bg)(.)((.*?\.)|(.*))/gi, 
-                    function (c0, c1, c2, c3) {
-                        return c1.toLowerCase() + c2.toUpperCase() + c3.toLowerCase();
-                    });
+            colorText = fixBackgroundColor(colorText);
 
             var colorInfo = validateAndBuildColor(colorText);
             if(colorInfo===false){
@@ -263,7 +301,7 @@ function validateAndBuildOptions (args) {
             var patternsArray = [];
             for (var j = i+1; j < args.length; j++) {
                 var arg = args[j];
-                if (NO_LINE_START_REGEX.test(arg)) {
+                if (NO_DASH_START_REGEX.test(arg)) {
                     patternsArray.push(arg);
                 } else{
                     break;
@@ -282,6 +320,16 @@ function validateAndBuildOptions (args) {
         return error("Wrong option: " + arg1+"'");
     }
     return true;
+}
+
+// ie. bggreen -> bgGreen
+function fixBackgroundColor(colorText){
+    return colorText.replace( // upercase third letter for background colors
+            /(bg)(.)((.*?\.)|(.*))/gi, 
+            function (c0, c1, c2, c3) {
+                return c1.toLowerCase() + c2.toUpperCase() + c3.toLowerCase();
+            });
+
 }
 
 /**
@@ -409,7 +457,11 @@ function buildColorFromText(highlightColorArg){
     return buildAnsiColor(colorStr);
 }
 
-function execute (args, writer) {
+function log(writer, text){
+    writer.write(text+'\n');
+}
+
+function execute (args, writer, eventEmitter) {
     argFile = null; 
     argConfig = null;
     argCaseSensitive = false;
@@ -420,18 +472,21 @@ function execute (args, writer) {
     
     var optionsResult = validateAndBuildOptions(args);
     if (optionsResult!==true) {
-        console.log(optionsResult);
-        printHelp();
+        log(writer, optionsResult);
+        printHelp(writer);
+        eventEmitter.emit('failed');
         return;
     }
 
     if (argHelp) {
-        printHelp();
+        printHelp(writer);
+        eventEmitter.emit('failed');
         return;
     }
     if(highlightOptions.length===1 && highlightOptions[0]===null){
-        console.log(error("No highlight pattern specified"));
-        printHelp();
+        log(writer, error("No highlight pattern specified"));
+        printHelp(writer);
+        eventEmitter.emit('failed');
         return;
     }
     
@@ -473,13 +528,12 @@ function execute (args, writer) {
 
 //    console.log(JSON.stringify(highlightOptions, null, 2));
         
-    var eventEmitter = new events.EventEmitter();
     var liner = buildLiner(writer, eventEmitter);
     if (argFile) {
         var source = fs.createReadStream(argFile);
         source.on('error', function (event) {
-            console.log(event);
-            process.exit(1);
+            writer.write("Could not open file "+argFile);
+            eventEmitter.emit('failed');
         });
         source.pipe(liner);
     } else {
@@ -488,7 +542,7 @@ function execute (args, writer) {
         process.stdin.pipe(liner);
     }
     
-    return eventEmitter;
+    return;
 }
 
 // https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions

@@ -6,6 +6,7 @@ var util = require('util');
 var execute = require(__dirname + '/../index.js');
 var streams = require('memory-streams');
 var stringArgv = require('../string-argv');
+var events = require('events');
 
 var INPUT1_PATH = path.normalize(__dirname + '/input1.txt');
 var INPUT2_PATH = path.normalize(__dirname + '/input2.txt');
@@ -29,16 +30,19 @@ var tests = [
              {
                  name: 'test1_case1',
                  args: "-f "+INPUT1_PATH+" -blue.bold SysMonWidget -blue 9084 -yellow ' \\d\\d\\d' -RED.bold '.*at .*?(\\d|native method)\\)' -GREEN.BOLD 'start timer activated' -BGGREEN.BOLD.WHITE end",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test1_case2',
                  args: "-f "+INPUT3_PATH+" -green 1234 123456",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test1_case3',
                  args: "-f "+INPUT3_PATH+" -green 1234 123456 5678",
+                 shouldFail: false,
                  res: false
              }, 
              
@@ -47,80 +51,95 @@ var tests = [
              {
                  name: 'test2_case1_1',
                  args: "-f "+INPUT2_PATH+" -green receive -red ctrl",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test2_case1_2',
                  args: "-f "+INPUT2_PATH+" -red ctrl -green receive",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test2_case1_3',
                  args: "-f "+INPUT2_PATH+" -green monitorid -red ctrl",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test2_case1_4',
                  args: "-f "+INPUT2_PATH+" -red monit -green orid",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test2_case1_5',
                  args: "-f "+INPUT2_PATH+" -red orid -green monit",
+                 shouldFail: false,
                  res: false
              },
              // Case 2
              {
                  name: 'test2_case2_1',
                  args: "-f "+INPUT2_PATH+" -green onit -red monitorid",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test2_case2_2',
                  args: "-f "+INPUT2_PATH+" -green monit -red monitorid",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test2_case2_3',
                  args: "-f "+INPUT2_PATH+" -green onitorid -red monitorid",
+                 shouldFail: false,
                  res: false
              },
              // Case 3
              {
                  name: 'test2_case3_1',
                  args: "-f "+INPUT2_PATH+" -green nitor -red monit",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test2_case3_2',
                  args: "-f "+INPUT2_PATH+" -green nitor -red mon",
+                 shouldFail: false,
                  res: false
              },
              // Case 4
              {
                  name: 'test2_case4_1',
                  args: "-f "+INPUT2_PATH+" -green nitor -red torid",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test2_case4_2',
                  args: "-f "+INPUT2_PATH+" -green nitor -red rid",
+                 shouldFail: false,
                  res: false
              },
              // Case 5
              {
                  name: 'test2_case5_1',
                  args: "-f "+INPUT2_PATH+" -green monitorid -red itor",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test2_case5_2',
                  args: "-f "+INPUT2_PATH+" -green monitorid -red monit",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test2_case5_3',
                  args: "-f "+INPUT2_PATH+" -green monitorid -red orid",
+                 shouldFail: false,
                  res: false
              },
              
@@ -128,71 +147,85 @@ var tests = [
              {
                  name: 'test3_case1',
                  args: "-f "+INPUT4_PATH+" -green monitorid 'On receive' -red ctrl",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case2',
                  args: "-f "+INPUT4_PATH+" -cs -green monitorid 'On receive' -red ctrl",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case3',
                  args: "-f "+INPUT4_PATH+" -green monitorid 'On receive' -cs -red ctrl",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case4',
                  args: "-f "+INPUT4_PATH+" -green monitorid 'On receive' -red ctrl -cs",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case5',
                  args: "-f "+INPUT4_PATH+" -green.ci monitorid 'On receive' -red ctrl",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case6',
                  args: "-f "+INPUT4_PATH+" -ci.green monitorid 'On receive' -red.ci ctrl",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case7',
                  args: "-f "+INPUT4_PATH+" -cs.green monitorid 'On receive' -red.cs ctrl",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case8',
                  args: "-f "+INPUT4_PATH+" -cs -cs.green monitorid 'On receive' -red.cs ctrl",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case9',
                  args: "-f "+INPUT4_PATH+" -cs -ci.green monitorid 'On receive' -red.cs ctrl",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case10',
                  args: "-f "+INPUT4_PATH+" -cs -ci.green monitorid 'On receive' -red.ci ctrl",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case11',
                  args: "-f "+INPUT4_PATH+" -cs -bold.ci.green monitorid 'On receive' -red.ci.bold ctrl",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case12',
                  args: "-f "+INPUT4_PATH+" -cs -bold.ci.cs.green monitorid 'On receive' -red.ci.bold ctrl",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case13',
                  args: "-f "+INPUT4_PATH+" -cs -bold.ci.ci.green monitorid 'On receive' -red.ci.bold ctrl",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case14',
                  args: "-f "+INPUT4_PATH+" -cs -bold.cs.cs.green monitorid 'On receive' -red.ci.bold ctrl",
+                 shouldFail: false,
                  res: false
              },
              
@@ -200,26 +233,31 @@ var tests = [
              {
                  name: 'test4_case1',
                  args: "-f "+INPUT4_PATH+" -green 'receive (ctrl) -'",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test4_case2',
                  args: "-f "+INPUT4_PATH+" -esc.green 'receive (ctrl) -'",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test4_case3',
                  args: "-f "+INPUT4_PATH+" -green.esc.bold 'receive (ctrl) -'",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test4_case4',
                  args: "-f "+INPUT4_PATH+" -green 'receive \\(ctrl\\) -'",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test4_case5',
                  args: "-f "+INPUT4_PATH+" -green.esc 'receive \\(ctrl\\) -'",
+                 shouldFail: false,
                  res: false
              },
              
@@ -227,26 +265,99 @@ var tests = [
              {
                  name: 'test5_case1',
                  args: "-f "+INPUT4_PATH+" ctrl monitor",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test5_case2',
                  args: "-f "+INPUT4_PATH+" -blue ctrl monitor",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test5_case3',
                  args: "-f "+INPUT4_PATH+" id -blue ctrl monitor",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test5_case4',
                  args: "-f "+INPUT4_PATH+" id -blue ctrl monitor -cs receive",
+                 shouldFail: false,
                  res: false
              },
              {
                  name: 'test5_case5',
                  args: "-f "+INPUT4_PATH+" Id Ctrl -blue ctrl monitor -cs receive 3e5",
+                 shouldFail: false,
+                 res: false
+             },
+             
+             // TEST SET 6 - Default style '-s'
+             {
+                 name: 'test6_case1',
+                 args: "-f "+INPUT4_PATH+" -s bold.bggreen ctrl",
+                 shouldFail: false,
+                 res: false
+             },
+             {
+                 name: 'test6_case2',
+                 args: "-f "+INPUT4_PATH+" -s bold.bGGreen ctrl -blue monitor",
+                 shouldFail: false,
+                 res: false
+             },
+             {
+                 name: 'test6_case3',
+                 args: "-f "+INPUT4_PATH+" -s bold.bGGreen ctrl -s bold.BGWHITE -blue monitor",
+                 shouldFail: false,
+                 res: false
+             },
+             
+             // TEST SET 7 - Presets
+             {
+                 name: 'test7_case1',
+                 args: "-f "+INPUT4_PATH+" -p p1=bold -p p2=white -p2.p1 ctrl",
+                 shouldFail: false,
+                 res: false
+             },
+             {
+                 name: 'test7_case2',
+                 args: "-f "+INPUT4_PATH+" -p p1=bold.green.bggreen -p p2=cyan -p2.p1 ctrl -p1 monitor -p2 id -p1.p2 receive",
+                 shouldFail: false,
+                 res: false
+             },
+             {
+                 name: 'test7_case3',
+                 args: "-f "+INPUT4_PATH+" -p p1=bold.green.bggreen -p p2=cyan -p2.red.p1 ctrl -p1.red monitor -red.p2 id -p1.p2 receive",
+                 shouldFail: false,
+                 res: false
+             },
+             {
+                 name: 'test7_case4',
+                 args: "-f "+INPUT4_PATH+" -p p1=bold.green.bggreen -p p1=x -p1 ctrl",
+                 expected: "Preset value 'x' is not valid",
+                 shouldFail: true,
+                 res: false
+             },
+             {
+                 name: 'test7_case5',
+                 args: "-f "+INPUT4_PATH+" -p p1= -p p1=reds -p1 ctrl",
+                 expected: "Preset is not defined correctly.",
+                 shouldFail: true,
+                 res: false
+             },
+             {
+                 name: 'test7_case6',
+                 args: "-f "+INPUT4_PATH+" -p aB=green -aB ctrl -ab monitor",
+                 expected: "On receive ([32mCtrl[39m) - [32mmonitor[39mId: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
+                 shouldFail: false,
+                 res: false
+             },
+             {
+                 name: 'test7_case7',
+                 args: "-f "+INPUT4_PATH+" -p -a-B2_3x=green --a-B2_3x ctrl --A-b2_3x monitor",
+                 expected: "On receive ([32mCtrl[39m) - [32mmonitor[39mId: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
+                 shouldFail: false,
                  res: false
              },
     ];
@@ -258,28 +369,45 @@ function escape(str){
 function test() {
     var t = tests[currentTest++];
     var args = stringArgv.parseArgsStringToArgv(t.args);
+    var handler = new events.EventEmitter();
     
     var writer = new streams.WritableStream();
-    var handler = execute(args, writer);
+    setImmediate(function(){
+        execute(args, writer, handler);
+    });
     handler.on('finished', function(){
         var output = writer.toString();
-        var expected = fs.readFileSync(__dirname + '/expected/' + t.name + '.txt', 'utf8').replace("\r\n|\n", "");
+        var expected = t.expected?t.expected:fs.readFileSync(__dirname + '/expected/' + t.name + '.txt', 'utf8').replace("\r\n|\n", "");
         if (t.name == 'test3_case1') {
 //          console.log(output);
         }
-        var res = escape(output) === escape(expected);
+        var res = t.shouldFail===false && escape(output) === escape(expected);
         t.res = res;
-        if(currentTest<tests.length){
-            test();
-        } else{
-            for (var i = 0; i < tests.length; i++) {
-                var testres = tests[i];
-                console.log(testres.name+': ' + passed(testres.res));
-            }
-            console.log();
-            console.log('Tests: ' + count + ', failed: ' + failed.toString().yellow + ', succeeded: ' + successful.toString().green);
-        }
+        nextTest();
     });
+    handler.on('failed', function(){
+        var output = writer.toString();
+        var expected = t.expected?t.expected:fs.readFileSync(__dirname + '/expected/' + t.name + '.txt', 'utf8').replace("\r\n|\n", "");
+        if (t.name == 'test3_case1') {
+//          console.log(output);
+        }
+        var res = t.shouldFail===true && escape(output).indexOf(escape(expected))>-1;
+        t.res = res;
+        nextTest();
+    });
+}
+
+function nextTest(){
+    if(currentTest<tests.length){
+        test();
+    } else{
+        for (var i = 0; i < tests.length; i++) {
+            var testres = tests[i];
+            console.log(testres.name+': ' + passed(testres.res));
+        }
+        console.log();
+        console.log('Tests: ' + count + ', failed: ' + failed.toString().yellow + ', succeeded: ' + successful.toString().green);
+    }
 }
 
 function test1(callback){
