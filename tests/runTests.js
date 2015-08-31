@@ -147,84 +147,98 @@ var tests = [
              {
                  name: 'test3_case1',
                  args: "-f "+INPUT4_PATH+" -green monitorid 'On receive' -red ctrl",
+                 expected: "[32mOn receive[39m ([31mCtrl[39m) - [32mmonitorId[39m: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case2',
                  args: "-f "+INPUT4_PATH+" -cs -green monitorid 'On receive' -red ctrl",
+                 expected: "[32mOn receive[39m (Ctrl) - monitorId: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case3',
                  args: "-f "+INPUT4_PATH+" -green monitorid 'On receive' -cs -red ctrl",
+                 expected: "[32mOn receive[39m (Ctrl) - monitorId: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case4',
                  args: "-f "+INPUT4_PATH+" -green monitorid 'On receive' -red ctrl -cs",
+                 expected: "[32mOn receive[39m (Ctrl) - monitorId: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case5',
                  args: "-f "+INPUT4_PATH+" -green.ci monitorid 'On receive' -red ctrl",
+                 expected: "[32mOn receive[39m ([31mCtrl[39m) - [32mmonitorId[39m: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case6',
                  args: "-f "+INPUT4_PATH+" -ci.green monitorid 'On receive' -red.ci ctrl",
+                 expected: "[32mOn receive[39m ([31mCtrl[39m) - [32mmonitorId[39m: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case7',
                  args: "-f "+INPUT4_PATH+" -cs.green monitorid 'On receive' -red.cs ctrl",
+                 expected: "[32mOn receive[39m (Ctrl) - monitorId: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case8',
                  args: "-f "+INPUT4_PATH+" -cs -cs.green monitorid 'On receive' -red.cs ctrl",
+                 expected: "[32mOn receive[39m (Ctrl) - monitorId: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case9',
                  args: "-f "+INPUT4_PATH+" -cs -ci.green monitorid 'On receive' -red.cs ctrl",
+                 expected: "[32mOn receive[39m (Ctrl) - [32mmonitorId[39m: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case10',
                  args: "-f "+INPUT4_PATH+" -cs -ci.green monitorid 'On receive' -red.ci ctrl",
+                 expected: "[32mOn receive[39m ([31mCtrl[39m) - [32mmonitorId[39m: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case11',
                  args: "-f "+INPUT4_PATH+" -cs -bold.ci.green monitorid 'On receive' -red.ci.bold ctrl",
+                 expected: "[1m[32mOn receive[39m[22m ([31m[1mCtrl[22m[39m) - [1m[32mmonitorId[39m[22m: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case12',
                  args: "-f "+INPUT4_PATH+" -cs -bold.ci.cs.green monitorid 'On receive' -red.ci.bold ctrl",
+                 expected: "[1m[32mOn receive[39m[22m ([31m[1mCtrl[22m[39m) - [1m[32mmonitorId[39m[22m: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case13',
                  args: "-f "+INPUT4_PATH+" -cs -bold.ci.ci.green monitorid 'On receive' -red.ci.bold ctrl",
+                 expected: "[1m[32mOn receive[39m[22m ([31m[1mCtrl[22m[39m) - [1m[32mmonitorId[39m[22m: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
              {
                  name: 'test3_case14',
                  args: "-f "+INPUT4_PATH+" -cs -bold.cs.cs.green monitorid 'On receive' -red.ci.bold ctrl",
+                 expected: "[1m[32mOn receive[39m[22m ([31m[1mCtrl[22m[39m) - monitorId: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
@@ -232,6 +246,7 @@ var tests = [
              // TEST SET 4 - Modifiers - esc
              {
                  name: 'test4_case1',
+                 expected: "On receive (Ctrl) - monitorId: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  args: "-f "+INPUT4_PATH+" -green 'receive (ctrl) -'",
                  shouldFail: false,
                  res: false
@@ -239,24 +254,28 @@ var tests = [
              {
                  name: 'test4_case2',
                  args: "-f "+INPUT4_PATH+" -esc.green 'receive (ctrl) -'",
+                 expected: "On [32mreceive (Ctrl) -[39m monitorId: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
              {
                  name: 'test4_case3',
                  args: "-f "+INPUT4_PATH+" -green.esc.bold 'receive (ctrl) -'",
+                 expected: "On [32m[1mreceive (Ctrl) -[22m[39m monitorId: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
              {
                  name: 'test4_case4',
                  args: "-f "+INPUT4_PATH+" -green 'receive \\(ctrl\\) -'",
+                 expected: "On [32mreceive (Ctrl) -[39m monitorId: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
              {
                  name: 'test4_case5',
                  args: "-f "+INPUT4_PATH+" -green.esc 'receive \\(ctrl\\) -'",
+                 expected: "On receive (Ctrl) - monitorId: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
@@ -265,30 +284,35 @@ var tests = [
              {
                  name: 'test5_case1',
                  args: "-f "+INPUT4_PATH+" ctrl monitor",
+                 expected: "On receive ([31mCtrl[39m) - [31mmonitor[39mId: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
              {
                  name: 'test5_case2',
                  args: "-f "+INPUT4_PATH+" -blue ctrl monitor",
+                 expected: "On receive ([34mCtrl[39m) - [34mmonitor[39mId: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
              {
                  name: 'test5_case3',
                  args: "-f "+INPUT4_PATH+" id -blue ctrl monitor",
+                 expected: "On receive ([34mCtrl[39m) - [34mmonitor[39m[31mId[39m: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
              {
                  name: 'test5_case4',
                  args: "-f "+INPUT4_PATH+" id -blue ctrl monitor -cs receive",
+                 expected: "On [31mreceive[39m (Ctrl) - [34mmonitor[39mId: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
              {
                  name: 'test5_case5',
                  args: "-f "+INPUT4_PATH+" Id Ctrl -blue ctrl monitor -cs receive 3e5",
+                 expected: "On [31mreceive[39m ([31mCtrl[39m) - [34mmonitor[39m[31mId[39m: [31m3e5[39me8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
@@ -298,17 +322,20 @@ var tests = [
                  name: 'test6_case1',
                  args: "-f "+INPUT4_PATH+" -s bold.bggreen ctrl",
                  shouldFail: false,
+                 expected: "On receive ([1m[42m[31mCtrl[39m[49m[22m) - monitorId: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  res: false
              },
              {
                  name: 'test6_case2',
                  args: "-f "+INPUT4_PATH+" -s bold.bGGreen ctrl -blue monitor",
+                 expected: "On receive ([1m[42m[31mCtrl[39m[49m[22m) - [1m[42m[34mmonitor[39m[49m[22mId: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
              {
                  name: 'test6_case3',
                  args: "-f "+INPUT4_PATH+" -s bold.bGGreen ctrl -s bold.BGWHITE -blue monitor",
+                 expected: "On receive ([1m[47m[31mCtrl[39m[49m[22m) - [1m[47m[34mmonitor[39m[49m[22mId: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
@@ -317,18 +344,21 @@ var tests = [
              {
                  name: 'test7_case1',
                  args: "-f "+INPUT4_PATH+" -p p1=bold -p p2=white -p2.p1 ctrl",
+                 expected: "On receive ([37m[1mCtrl[22m[39m) - monitorId: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
              {
                  name: 'test7_case2',
                  args: "-f "+INPUT4_PATH+" -p p1=bold.green.bggreen -p p2=cyan -p2.p1 ctrl -p1 monitor -p2 id -p1.p2 receive",
+                 expected: "On [1m[32m[42m[36mreceive[39m[49m[39m[22m ([36m[1m[32m[42mCtrl[49m[39m[22m[39m) - [1m[32m[42mmonitor[49m[39m[22m[36mId[39m: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
              {
                  name: 'test7_case3',
                  args: "-f "+INPUT4_PATH+" -p p1=bold.green.bggreen -p p2=cyan -p2.red.p1 ctrl -p1.red monitor -red.p2 id -p1.p2 receive",
+                 expected: "On [1m[32m[42m[36mreceive[39m[49m[39m[22m ([36m[31m[1m[32m[42mCtrl[49m[39m[22m[39m[39m) - [1m[32m[42m[31mmonitor[39m[49m[39m[22m[31m[36mId[39m[39m: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
                  shouldFail: false,
                  res: false
              },
