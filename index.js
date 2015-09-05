@@ -7,11 +7,6 @@ var DEFAULT_HIGHLIGHT_COLOR_PARAM = 'DEFAULT_HIGHLIGHT_COLOR_PARAM';
 var NO_DASH_START_REGEX = /^[^\-].*$/; // Text that does not start with a dash.
 var DASH_START_REGEX = /^-.*$/;
 
-//filled by user parameters
-var colorPresets = {
-        
-};
-
 var validModifiers = {
         'ci' : true, // case insensitive
         'cs' : true, // case sensitive
@@ -174,7 +169,7 @@ function addHighlightPattern (highlightColor, modifiers, highlightPatternArray) 
     highlightOptions[i].patternArray = highlightOptions[i].patternArray.concat(highlightPatternArray);
 }
 
-function validateAndBuildColor(colorTextParam){
+function validateAndBuildColor(colorTextParam, colorPresets){
     var colorText = '';
     var modifiers = {};
     var colorTextArray = colorTextParam.split('.');
@@ -213,6 +208,11 @@ function validateAndBuildOptions (args) {
     if(args.length==0){
         return error("No options specified");
     }
+
+    // Holds user defined presets
+    var colorPresets = {
+
+    };
     
     for (var i = 0; i < args.length;) {
         var arg1 = args[i];
@@ -257,7 +257,7 @@ function validateAndBuildOptions (args) {
             var presetName = match[1].toLowerCase();
             var presetValue = match[2].toLowerCase(); // normalize
             presetValue = fixBackgroundColor(presetValue);
-            var colorInfo = validateAndBuildColor(presetValue);
+            var colorInfo = validateAndBuildColor(presetValue, colorPresets);
             if(colorInfo===false){
                 return error("Preset value '"+presetValue+"' is not valid. Sample: '-p fail=red.bold -p success=green.bold'.");
             }
@@ -277,7 +277,7 @@ function validateAndBuildOptions (args) {
             }
             arg2 = arg2.toLowerCase(); // normalize
             arg2 = fixBackgroundColor(arg2);
-            var colorInfo = validateAndBuildColor(arg2);
+            var colorInfo = validateAndBuildColor(arg2, colorPresets);
             if(colorInfo===false){
                 return error("Default style '"+arg2+"' is not valid. Sample: '-s bold.italic'.");
             }
@@ -304,7 +304,7 @@ function validateAndBuildOptions (args) {
             colorText = colorText.toLowerCase(); // normalize
             colorText = fixBackgroundColor(colorText);
 
-            var colorInfo = validateAndBuildColor(colorText);
+            var colorInfo = validateAndBuildColor(colorText, colorPresets);
             if(colorInfo===false){
                 return error("Wrong option: '"+arg1+"'");
             }
