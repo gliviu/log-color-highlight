@@ -89,8 +89,8 @@ function printHelp (writer) {
     
     log(writer, bold("  Options:"));
     log(writer, "\t-f filePath\tInput file path. If this is not provided, standard input is used.");
-    log(writer, "\t-c configPath\tPath to configuration file. See "+bold("Highlight pattern")+" below.");
-    log(writer, "\t-s style\tImplicit style. See "+gray('Styles')+" below for valid value.");
+    log(writer, "\t-c configPath\tPath to configuration file.");
+    log(writer, "\t-s style\tImplicit style.");
     log(writer, "\t-cs\t\tCase sensitive. By default text matching is done case insensitive.");
     log(writer, "\t-p\t\tAdd color or style preset.");
     log(writer, "\t-h --help\tPrints this help message.");
@@ -111,22 +111,34 @@ function printHelp (writer) {
     for(var color in validStyles){
         writer.write(" "+color);
     }
-    writer.write(gray("\n\t\tPresets: any preset defined with '-p' parameter"));
+    writer.write(gray("\n\t\tPresets:") + " any preset defined with '-p' parameter");
     writer.write(gray("\n\t\tModifiers:"));
     writer.write("\n\t\t\tcs ci - toggle for case sensitivity");
     writer.write("\n\t\t\tesc  - escape regex special characters");
-    log(writer, bold("  Presets: -p presetName=def -p presetName=def ..."));
-    log(writer, bold("  Preset name is formed by alphanumeric characters, dash and underscores."));
-    log(writer, bold("  Preset definition follow the same rule as for 'Highlight pattern'."));
+
+    log(writer, "");
+    log(writer, bold("  Presets:") + " -p presetName=def -p presetName=def ...");
+    log(writer, "  Preset name allows alphanumeric characters, '-' and '_'.");
+    log(writer, "  Preset definition follow the same rule as for 'Highlight pattern'.");
     log(writer, '');
     log(writer, '');
     
     log(writer, bold("  Examples:"));
     log(writer, "\tHighlight 'error' and 'warn' in default color (red)");
-    log(writer, "\ttail -f file | lch error warn");
-    log(writer, "\tHighlight 'error', 'errors' and 'warn' in differen colors");
-    log(writer, "\ttail -f file | lch -red.bold error errors -yellow warn warning warnings");
-    log(writer, "\ttail -f file | lch -p errors=bgred.white -p success=bgtreen.black -errors error -yellow warn");
+    log(writer, gray("\ttail -f file | lch error warn"));
+    log(writer, '');
+    log(writer, "\tHighlight errors and warnings");
+    log(writer, gray('\techo "errors, failures and warnings" | lch -red.bold error errors failure -yellow warn'));
+    log(writer, '');
+    log(writer, "\tSimilar to above using presets");
+    log(writer, gray('\techo "errors, failures and warnings" | lch -p err=bgred.white -p wrn=bgyellow.black -err.bold error errors failure -wrn warn'));
+    log(writer, '');
+    log(writer, "\tImplicit style");
+    log(writer, gray('\techo "errors, failures and warnings" | lch -s bold.italic -red errors -yellow warnings'));
+    log(writer, '');
+    log(writer, "\tCase sensitivity");
+    log(writer, gray('\techo "errors, failures and warnings" | lch -cs -red Errors -yellow.ci Warnings'));
+    log(writer, '');
     log(writer, "\tMore samples at https://www.npmjs.com/package/log-color-highlight#examples");
 }
 
@@ -235,19 +247,19 @@ function validateAndBuildOptions (args) {
         }
         if (arg1 === '-p') {
             if (arg2 == null) {
-                return error("Preset value required. Correct format sample: '-p fail=red.bold -p success=green.bold'.");
+                return error("Preset value required. Sample: '-p fail=red.bold -p success=green.bold'.");
             }
 
             var match = /^([a-zA-Z0-9\-_]+)=([a-zA-Z.]+)$/.exec(arg2);
             if(!match){
-                return error("Preset is not defined correctly. Correct format sample: '-p fail=red.bold -p success=green.bold'.");
+                return error("Preset '"+arg2+"' is not defined correctly. Sample: '-p fail=red.bold -p success=green.bold'. \nPreset name allows alphanumeric characters, '-' and '_'. ");
             }
             var presetName = match[1].toLowerCase();
             var presetValue = match[2].toLowerCase(); // normalize
             presetValue = fixBackgroundColor(presetValue);
             var colorInfo = validateAndBuildColor(presetValue);
             if(colorInfo===false){
-                return error("Preset value '"+presetValue+"' is not valid. Correct format sample: '-p fail=red.bold -p success=green.bold'.");
+                return error("Preset value '"+presetValue+"' is not valid. Sample: '-p fail=red.bold -p success=green.bold'.");
             }
             colorPresets[presetName] = colorInfo;
             
@@ -261,13 +273,13 @@ function validateAndBuildOptions (args) {
         }
         if (arg1 === '-s') {
             if (arg2 == null) {
-                return error("Default style required for '"+arg1+"'. Correct format sample: '-s bold.italic'.");
+                return error("Default style required for '"+arg1+"'. Sample: '-s bold.italic'.");
             }
             arg2 = arg2.toLowerCase(); // normalize
             arg2 = fixBackgroundColor(arg2);
             var colorInfo = validateAndBuildColor(arg2);
             if(colorInfo===false){
-                return error("Default style '"+arg2+"' is not valid. Correct format sample: '-s bold.italic'.");
+                return error("Default style '"+arg2+"' is not valid. Sample: '-s bold.italic'.");
             }
             argDefaultStyle = colorInfo.colorText;
             i+=2;

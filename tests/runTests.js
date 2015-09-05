@@ -372,7 +372,7 @@ var tests = [
              {
                  name: 'test7_case5',
                  args: "-f "+INPUT4_PATH+" -p p1= -p p1=reds -p1 ctrl",
-                 expected: "Preset is not defined correctly.",
+                 expected: "Preset 'p1=' is not defined correctly.",
                  shouldFail: true,
                  res: false
              },
@@ -390,6 +390,27 @@ var tests = [
                  shouldFail: false,
                  res: false
              },
+             {
+                 name: 'test7_case8',
+                 args: "-f "+INPUT4_PATH+" -p a=blue -p a=green -a ctrl",
+                 expected: "On receive ([32mCtrl[39m) - monitorId: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
+                 shouldFail: false,
+                 res: false
+             },
+             {
+                 name: 'test7_case9',
+                 args: "-f "+INPUT4_PATH+" -p blue=green -blue ctrl",
+                 expected: "On receive ([32mCtrl[39m) - monitorId: 3e5e8426-5891-4256-8bda-b03bf6f14d67",
+                 shouldFail: false,
+                 res: false
+             },
+             {
+                 name: 'test7_case10',
+                 args: "-f "+INPUT4_PATH+" -p a=green.a -a ctrl",
+                 expected: "Preset value 'green.a' is not valid.",
+                 shouldFail: true,
+                 res: false
+             },
     ];
 
 function escape(str){
@@ -398,6 +419,9 @@ function escape(str){
 
 function test() {
     var t = tests[currentTest++];
+    if (t.name == 'test7_case10') {
+        console.log();
+    }
     var args = stringArgv.parseArgsStringToArgv(t.args);
     var handler = new events.EventEmitter();
     
@@ -408,9 +432,9 @@ function test() {
     handler.on('finished', function(){
         var output = writer.toString();
         var expected = t.expected?t.expected:fs.readFileSync(__dirname + '/expected/' + t.name + '.txt', 'utf8').replace("\r\n|\n", "");
-        if (t.name == 'test3_case1') {
+//        if (t.name == 'test7_case10') {
 //          console.log(output);
-        }
+//        }
         var res = t.shouldFail===false && escape(output) === escape(expected);
         t.res = res;
         nextTest();
