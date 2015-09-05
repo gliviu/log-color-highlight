@@ -3,7 +3,8 @@ var colors = require('colors');
 var fs = require('fs');
 var path = require('path');
 var util = require('util');
-var execute = require(__dirname + '/../index.js');
+var parseCmd = require(__dirname + '/../parseCmd.js');
+var highlight = require(__dirname + '/../index.js');
 var streams = require('memory-streams');
 var stringArgv = require('../string-argv');
 var events = require('events');
@@ -419,20 +420,24 @@ function escape(str){
 
 function test() {
     var t = tests[currentTest++];
-    if (t.name == 'test7_case10') {
-        console.log();
-    }
     var args = stringArgv.parseArgsStringToArgv(t.args);
     var handler = new events.EventEmitter();
     
     var writer = new streams.WritableStream();
+    
+    var options = parseCmd(args, writer);
+    
     setImmediate(function(){
-        execute(args, writer, handler);
+        if(!options){
+            handler.emit('failed');
+            return;
+        }
+        highlight(options, writer, handler);
     });
     handler.on('finished', function(){
         var output = writer.toString();
         var expected = t.expected?t.expected:fs.readFileSync(__dirname + '/expected/' + t.name + '.txt', 'utf8').replace("\r\n|\n", "");
-//        if (t.name == 'test7_case10') {
+//        if (t.name == 'test7_case4') {
 //          console.log(output);
 //        }
         var res = t.shouldFail===false && escape(output) === escape(expected);
