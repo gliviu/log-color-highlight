@@ -17,9 +17,8 @@ lch -f file -red error warn -green success
 tail -f file | lch -red error warn -green success
 
 ```
-Works in windows and unix environments.
-Cygwin is not supported due to this terminal/console [bug](https://github.com/joyent/node/issues/6459)
-On windows I use [file-tail](https://www.npmjs.com/package/file-tail) as tail command - ``` nftail -f file | lch -red error warn -green success ```
+Works in windows and unix environments (cygwin not supported due to this terminal/console [bug](https://github.com/joyent/node/issues/6459))
+On windows I use it together with [file-tail](https://www.npmjs.com/package/file-tail) - ``` nftail -f file | lch -red error warn -green success ```
 
 ## Options
 ```text
@@ -27,25 +26,30 @@ On windows I use [file-tail](https://www.npmjs.com/package/file-tail) as tail co
 
   Options:
         -f filePath     Input file path. If this is not provided, 'stdin' is used.
-        -c configPath   Path to configuration file. See Highlight pattern below.
-        -s style        Implicit style. See Styles below for valid value.
-        -cs             Case sensitive.
+        -c configPath   Path to configuration file.
+        -s style        Implicit style.
+        -cs             Case sensitive. By default text matching is done case insensitive.
+        -p              Add color or style preset.
         -h --help       Prints this help message.
 
   Highlight pattern: [pattern1 pattern2 ...] [-color pattern1 pattern2 ...] ....
         pattern Regex pattern. If no color is specified, by default it is highlighted in Red.
-        color   Highlighting color, style or modifier. Allowed values:
+        color   Highlighting color, style, preset or modifier. Allowed values:
                 Colors: black red green yellow blue magenta cyan white gray
                 Background colors: bgBlack bgRed bgGreen bgYellow bgBlue bgMagenta bgCyan bgWhite
                 Styles: reset bold dim italic underline inverse hidden strikethrough
+                Presets: any preset defined with '-p' parameter
                 Modifiers:
 	                cs ci - toggle for case sensitivity
 	                esc - escape regex special characters
+  Presets: -p presetName=def -p presetName=def ...
+  Preset name is formed by alphanumeric characters, dash and underscores.
+  Preset definition follow the same rule as for 'Highlight pattern'.
 
 ```
 
 ## Examples
-* Highlight errors and warnings in default color ```lch -f file error warn```
+* Highlight 'error' and 'warn' in default color (red) ```lch -f file error warn```
 
 * Specific colors ```echo "errors, failures and warnings" | lch -red err fail -yellow warn```
 
@@ -104,6 +108,32 @@ Produces the same result as
 
 ``` echo "2015-08-18 [ERROR] On receive (ctrl) - monitorId: 3e5e8426" | lch -green.bold start starting success successfully -red.bold error errors erroneous wrong -yellow.bold warn warning deprecated```
 
+## Presets
+Presets are provided to reuse common coloring schemes.
+They are most useful together with a configuration files.
+```bash
+-p err=red.bold
+-p ok=green.bold
+-p warn=yellow.bold
+
+# Success
+-ok success successful successfully
+-ok.bgwhite "Operation.*completed"
+
+# Errors
+-err
+	err error errors erroneous
+	wrong
+	fail failure
+-err.bgwhite "Operation.*failed"
+
+# Warnings
+-warn warn warning warnings deprecated
+```
+``` echo "errors, failures and warnings" | lch -c lch.conf ```
+
+Presets can be combined one with another or with any color, style or modifier.
+``` echo "2015-08-18 [ERROR] On receive (ctrl) - monitorId: 3e5e8426" | lch -p p1=red.italic -p p2=bgwhite -p1.bold.p2 error -p2.blue ctrl ```
 
 ## Test
 ```bash
