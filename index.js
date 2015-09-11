@@ -129,9 +129,9 @@ function buildLiner(writer, eventEmitter, highlightOptions) {
     return liner;
 }
 
-function buildColorFromText(highlightColorArg, argDefaultStyle){
+function buildColorFromText(highlightColorArg, defaultStyle){
     var colorsText = highlightColorArg.split('.');
-    var colorStr = argDefaultStyle;
+    var colorStr = defaultStyle;
     for(var i=0; i<colorsText.length; i++){
         var colorText = colorsText[i];
         if(colorStr.length>0){
@@ -166,7 +166,7 @@ function highlight(options, writer, eventEmitter) {
         var highlightOption = options.highlightOptions[i];
         if(highlightOption){
             // Regex case option
-            var caseOption = options.argCaseSensitive?'':'i'; // Case sensitive is default regex option
+            var caseOption = options.caseSensitive?'':'i'; // Case sensitive is default regex option
             if(highlightOption.modifiers['cs']){
                 caseOption = '';
             }
@@ -190,7 +190,7 @@ function highlight(options, writer, eventEmitter) {
             highlightOption.patternRegex = new RegExp(patternListStr, 'g'+caseOption);
 
             // Cache color
-            highlightOption.colorAnsi = buildColorFromText(highlightOption.colorText, options.argDefaultStyle);
+            highlightOption.colorAnsi = buildColorFromText(highlightOption.colorText, options.defaultStyle);
         }
         
     }
@@ -198,10 +198,10 @@ function highlight(options, writer, eventEmitter) {
 //    console.log(JSON.stringify(options.highlightOptions, null, 2));
         
     var liner = buildLiner(writer, eventEmitter, options.highlightOptions);
-    if (options.argFile) {
-        var source = fs.createReadStream(options.argFile);
+    if (options.fileName) {
+        var source = fs.createReadStream(options.fileName);
         source.on('error', function (event) {
-            writer.write("Could not open file "+options.argFile);
+            writer.write("Could not open file "+options.fileName);
             eventEmitter.emit('failed');
         });
         source.pipe(liner);

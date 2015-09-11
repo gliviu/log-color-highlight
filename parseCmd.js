@@ -50,7 +50,11 @@ var validStyles = {
         'strikethrough' : true,
 };
 
-function validateAndBuildOptions (args, options) {
+/**
+ * Validates 'args' and adds them in 'result'. Returns true in case of success. Returns descriptive string in case of validation error.  
+ * @param args Command line arguments.
+ */
+function validateAndBuildOptions (args, result) {
     if(args.length==0){
         return error("No options specified");
     }
@@ -71,7 +75,7 @@ function validateAndBuildOptions (args, options) {
             if (arg2 == null) {
                 return error("Input file path required.");
             }
-            options.argFile = arg2;
+            result.argFile = arg2;
             i += 2;
             continue;
         }
@@ -79,11 +83,11 @@ function validateAndBuildOptions (args, options) {
             if (arg2 == null) {
                 return error("Config file path required.");
             }
-            options.argConfig = arg2;
+            result.argConfig = arg2;
             
             var buildConfigArgument = require('./config'); 
-            var configArgs = buildConfigArgument(options.argConfig);
-            var optionsResult = validateAndBuildOptions(configArgs, options);
+            var configArgs = buildConfigArgument(result.argConfig);
+            var optionsResult = validateAndBuildOptions(configArgs, result);
             if (optionsResult!==true) {
                 return error('Error in config file: '+optionsResult);
             }
@@ -113,7 +117,7 @@ function validateAndBuildOptions (args, options) {
             continue;
         }
         if (arg1 === '-cs') {
-            options.argCaseSensitive = true;
+            result.argCaseSensitive = true;
             i++;
             continue;
         }
@@ -127,19 +131,19 @@ function validateAndBuildOptions (args, options) {
             if(colorInfo===false){
                 return error("Default style '"+arg2+"' is not valid. Sample: '-s bold.italic'.");
             }
-            options.argDefaultStyle = colorInfo.colorText;
+            result.argDefaultStyle = colorInfo.colorText;
             i+=2;
             continue;
         }
         if (arg1 === '-h' || arg1 === '--help') {
-            options.argHelp = true;
+            result.argHelp = true;
             i++;
             continue;
         }
 
         // Default color highlight pattern.
         if (NO_DASH_START_REGEX.test(arg1)) {
-            addHighlightPattern(options.highlightOptions, DEFAULT_HIGHLIGHT_COLOR_PARAM, {}, [arg1]);
+            addHighlightPattern(result.highlightOptions, DEFAULT_HIGHLIGHT_COLOR_PARAM, {}, [arg1]);
             i++;
             continue;
         }
@@ -151,7 +155,7 @@ function validateAndBuildOptions (args, options) {
             colorText = fixBackgroundColor(colorText);
 
             var colorInfo = validateAndBuildColor(colorText, colorPresets);
-            if(colorInfo===false){
+            if(colorInfo === false){
                 return error("Wrong option: '"+arg1+"'");
             }
             colorText = colorInfo.colorText;
@@ -169,7 +173,7 @@ function validateAndBuildOptions (args, options) {
                 return error("At least one pattern to highlight is required for '"+arg1+"'.");
             }
             
-            addHighlightPattern(options.highlightOptions, colorText, colorInfo.modifiers, patternsArray);
+            addHighlightPattern(result.highlightOptions, colorText, colorInfo.modifiers, patternsArray);
             i=j;
             continue;
         }
@@ -322,34 +326,37 @@ function log(writer, text){
  * options understood by log highlighter (index.js).
  */
 function parseCmd(args, writer) {
-    var options = {
+    var parsedArguments = {
             argFile: null, // -f 
             argConfig: null, // -c
             argCaseSensitive: false, // -cs 
             argDefaultStyle: '', // -s
             argHelp: false, // -h, --help
             highlightOptions: [null]
-
     };
-
-    var optionsResult = validateAndBuildOptions(args, options);
-    if (optionsResult!==true) {
-        log(writer, optionsResult);
+    var parseResult = validateAndBuildOptions(args, parsedArguments);
+    if (parseResult!==true) {
+        log(writer, parseResult);
         printHelp(writer);
         return false;
     }
 
-    if (options.argHelp) {
+    if (parsedArguments.argHelp) {
         printHelp(writer);
         return false;
     }
-    if(options.highlightOptions.length===1 && options.highlightOptions[0]===null){
+    if(parsedArguments.highlightOptions.length===1 && parsedArguments.highlightOptions[0]===null){
         log(writer, error("No highlight pattern specified"));
         printHelp(writer);
         return false;
     }
     
-    return options;
+    return {
+        fileName: parsedArguments.argFile,
+        caseSensitive: parsedArguments.argCaseSensitive,
+        defaultStyle: parsedArguments.argDefaultStyle,
+        highlightOptions: parsedArguments.highlightOptions
+    };
 }
 
 
