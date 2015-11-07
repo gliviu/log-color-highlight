@@ -7,7 +7,8 @@ var DASH_START_REGEX = /^-.*$/;
 var ansi = require('ansi-styles');
 var execute = require('./index');
 var pjson = require('./package.json');
-
+var npath = require('path');
+var fs = require('fs');
 
 
 var validModifiers = {
@@ -83,7 +84,11 @@ function validateAndBuildOptions (args, result) {
             if (arg2 == null) {
                 return error("Config file path required.");
             }
-            result.argConfig = arg2;
+            try{
+                result.argConfig = buildConfigFilePath(arg2);
+            } catch(err){
+                return error(err);
+            }
             
             var buildConfigArgument = require('./config'); 
             var configArgs = buildConfigArgument(result.argConfig);
@@ -183,6 +188,81 @@ function validateAndBuildOptions (args, result) {
     }
     return true;
 }
+
+/**
+ * Returns the path of the configuration file.
+ * Searches in LCH_CONFIG env variable and user home.
+ * Throws error if config file does not exist on disk.
+ */
+function buildConfigFilePath(configFileParam){
+    if(fileExists(configFileParam)){
+        // Config file found.
+        return configFileParam;
+    } else if(fileExists(npath.join(getUserHome(), configFileParam))) {
+        // Config file found in user home directory.
+        return npath.join(getUserHome(), configFileParam);
+    } else if(existsInLchConfigEnv(configFileParam)){
+        // Config file found in LCH_CONFIG environment variable.
+        return npath.join(process.env.LCH_CONFIG, configFileParam);
+    } else {
+        // Config file not found.
+        if(isAbsolute(configFileParam)){
+            throw "Config file path '"+npath.resolve(configFileParam)+"' does not point to an existing file.";
+        } else{
+            var paths = [];
+            paths.push(npath.resolve(configFileParam));
+            paths.push(npath.resolve(npath.join(getUserHome(), configFileParam)));
+            if(process.env.LCH_CONFIG){
+                paths.push(npath.join(process.env.LCH_CONFIG, configFileParam));
+            }
+            
+            var uniquePaths = removeDuplicates(paths);
+            throw "Cannot find config file in following locations: " + JSON.stringify(uniquePaths, null, 0);
+        }
+    }
+}
+
+// http://stackoverflow.com/questions/9229645/remove-duplicates-from-javascript-array/9229821#9229821
+function removeDuplicates(array){
+    return array.filter(function(item, pos) {
+        return array.indexOf(item) == pos;
+    });
+}
+
+// True if config file exists in LCH_CONFIG
+function existsInLchConfigEnv(configFileRelativePath){
+    if(!process.env.LCH_CONFIG){
+        return false;
+    }
+    var confPath = npath.join(process.env.LCH_CONFIG, configFileRelativePath);
+    if(fileExists(confPath)){
+        return true;
+    } else{
+        return false;
+    }
+}
+
+//http://stackoverflow.com/questions/21698906/how-to-check-if-a-path-is-absolute-or-relative/30714706#30714706
+function isAbsolute(p) {
+    return npath.normalize(p + '/') === npath.normalize(npath.resolve(p) + '/');
+}
+
+// http://stackoverflow.com/questions/9080085/node-js-find-home-directory-in-platform-agnostic-way/9081436#9081436
+function getUserHome () {
+    return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+}
+
+function fileExists(path){
+    try{
+        if(fs.lstatSync(path).isFile()){
+            return true; 
+        }
+        return false;
+    } catch(err){
+        return false;
+    }
+}
+
 
 function validateAndBuildColor(colorTextParam, colorPresets){
     var colorText = '';
@@ -287,21 +367,16 @@ function printHelp (writer) {
     log(writer, "  Preset name allows alphanumeric characters, '-' and '_'.");
     log(writer, "  Preset definition follow the same rule as for 'Highlight pattern'.");
     log(writer, '');
-    log(writer, '');
     
     log(writer, bold("  Examples:"));
     log(writer, "\tHighlight 'error' and 'warn' in default color (red)");
     log(writer, gray("\ttail -f file | lch error warn"));
-    log(writer, '');
     log(writer, "\tHighlight errors and warnings");
     log(writer, gray('\techo "errors, failures and warnings" | lch -red.bold error errors failure -yellow warn'));
-    log(writer, '');
     log(writer, "\tSimilar to above using presets");
     log(writer, gray('\techo "errors, failures and warnings" | lch -p err=bgred.white -p wrn=bgyellow.black -err.bold error errors failure -wrn warn'));
-    log(writer, '');
     log(writer, "\tImplicit style");
     log(writer, gray('\techo "errors, failures and warnings" | lch -s bold.italic -red errors -yellow warnings'));
-    log(writer, '');
     log(writer, "\tCase sensitivity");
     log(writer, gray('\techo "errors, failures and warnings" | lch -cs -red Errors -yellow.ci Warnings'));
     log(writer, '');
