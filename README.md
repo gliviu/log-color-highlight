@@ -83,7 +83,7 @@ Supports nested highlights:
 ``` echo "log color highlight" | lch -blue "color" -red "log color" ```
 
 ## Configuration file syntax
-Use configuration file for complex highlighting. The config file supports command line syntax - any command line parameter string is a valid config file. In addition it allows # as comments and blank line  or tabs as delimiters.
+Use configuration file for complex highlighting. The config file supports command line syntax - any command line parameter string is a valid config file. In addition it allows # as comments and blank line  or tabs as delimiters. 
 
 ``` echo "2015-08-18 [ERROR] On receive (ctrl) - monitorId: 3e5e8426" | lch -c lch.conf ```
 
@@ -107,6 +107,12 @@ Use configuration file for complex highlighting. The config file supports comman
 Produces the same result as 
 
 ``` echo "2015-08-18 [ERROR] On receive (ctrl) - monitorId: 3e5e8426" | lch -green.bold start starting success successfully -red.bold error errors erroneous wrong -yellow.bold warn warning deprecated```
+
+## Configuration file path
+It can be a relative path: ``` echo ... | lch -c file.conf ```
+Note that ```file.conf``` is searched in the current directory, user home folder and LCH_CONFIG environment variable path if defined.
+
+Or an absolute path: ``` echo ... | lch -c /home/user/file.conf ```
 
 ## Presets
 Presets are provided to reuse common coloring schemes.
@@ -141,6 +147,12 @@ cd log-color-highlight
 npm install
 npm test
 ```
+
+## Changelog
+ - 1.3.0 config file is searched in user home folder or LCH_CONFIG env variable path
+ - 1.2.0 presets
+ - 1.1.1 regular expression escape modifier
+ - 1.1.0 case sensitivity modifiers
 
 ## Alternatives
 Lch doesn't fit? Try one of the following.
