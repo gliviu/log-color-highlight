@@ -5,7 +5,7 @@ var NO_DASH_START_REGEX = /^[^\-].*$/; // Text that does not start with a dash.
 var DASH_START_REGEX = /^-.*$/;
 
 var ansi = require('ansi-styles');
-var execute = require('./index');
+var execute = require('./highlighter');
 var pjson = require('./package.json');
 var npath = require('path');
 var fs = require('fs');
@@ -52,7 +52,7 @@ var validStyles = {
 };
 
 /**
- * Validates 'args' and adds them in 'result'. Returns true in case of success. Returns descriptive string in case of validation error.  
+ * Validates 'args' and adds them in 'result'. Returns true in case of success. Returns descriptive string in case of validation error.
  * @param args Command line arguments.
  */
 function validateAndBuildOptions (args, result) {
@@ -64,7 +64,7 @@ function validateAndBuildOptions (args, result) {
     var colorPresets = {
 
     };
-    
+
     for (var i = 0; i < args.length;) {
         var arg1 = args[i];
         var arg2 = null;
@@ -89,14 +89,14 @@ function validateAndBuildOptions (args, result) {
             } catch(err){
                 return error(err);
             }
-            
-            var buildConfigArgument = require('./config'); 
+
+            var buildConfigArgument = require('./config');
             var configArgs = buildConfigArgument(result.argConfig);
             var optionsResult = validateAndBuildOptions(configArgs, result);
             if (optionsResult!==true) {
                 return error('Error in config file: '+optionsResult);
             }
-            
+
             i += 2;
             continue;
         }
@@ -117,7 +117,7 @@ function validateAndBuildOptions (args, result) {
                 return error("Preset value '"+presetValue+"' is not valid. Sample: '-p fail=red.bold -p success=green.bold'.");
             }
             colorPresets[presetName] = colorInfo;
-            
+
             i += 2;
             continue;
         }
@@ -152,7 +152,7 @@ function validateAndBuildOptions (args, result) {
             i++;
             continue;
         }
-        
+
         // Specified color
         if (DASH_START_REGEX.test(arg1)) {
             var colorText = arg1.substring(1); // strip leading dash
@@ -177,12 +177,12 @@ function validateAndBuildOptions (args, result) {
             if(patternsArray.length==0){
                 return error("At least one pattern to highlight is required for '"+arg1+"'.");
             }
-            
+
             addHighlightPattern(result.highlightOptions, colorText, colorInfo.modifiers, patternsArray);
             i=j;
             continue;
         }
-        
+
 
         return error("Wrong option: " + arg1+"'");
     }
@@ -215,7 +215,7 @@ function buildConfigFilePath(configFileParam){
             if(process.env.LCH_CONFIG){
                 paths.push(npath.join(process.env.LCH_CONFIG, configFileParam));
             }
-            
+
             var uniquePaths = removeDuplicates(paths);
             throw "Cannot find config file in following locations: " + JSON.stringify(uniquePaths, null, 0);
         }
@@ -255,7 +255,7 @@ function getUserHome () {
 function fileExists(path){
     try{
         if(fs.lstatSync(path).isFile()){
-            return true; 
+            return true;
         }
         return false;
     } catch(err){
@@ -278,7 +278,7 @@ function validateAndBuildColor(colorTextParam, colorPresets){
         if(!(validColor || validStyle || validBgColor || validModifier || validPreset)){
             return false;
         }
-        
+
         if(validModifier){
             modifiers[subcolorText] = true;
         } else if(validPreset){
@@ -303,7 +303,7 @@ function validateAndBuildColor(colorTextParam, colorPresets){
 //ie. bggreen -> bgGreen
 function fixBackgroundColor(colorText){
     return colorText.replace( // upercase third letter for background colors
-            /(bg)(.)((.*?\.)|(.*))/gi, 
+            /(bg)(.)((.*?\.)|(.*))/gi,
             function (c0, c1, c2, c3) {
                 return c1.toLowerCase() + c2.toUpperCase() + c3.toLowerCase();
             });
@@ -323,7 +323,7 @@ function addHighlightPattern(highlightOptions, highlightColor, modifiers, highli
         i = highlightOptions.length-1;
         highlightOptions[i].colorText = highlightColor;
     }
-    
+
     highlightOptions[i].patternArray = highlightOptions[i].patternArray.concat(highlightPatternArray);
 }
 
@@ -332,7 +332,7 @@ function printHelp (writer) {
 
     log(writer, bold("  Usage:")+" lch [options] Highlight pattern");
     log(writer, "");
-    
+
     log(writer, bold("  Options:"));
     log(writer, "\t-f filePath\tInput file path. If this is not provided, standard input is used.");
     log(writer, "\t-c configPath\tPath to configuration file.");
@@ -341,7 +341,7 @@ function printHelp (writer) {
     log(writer, "\t-p\t\tAdd color or style preset.");
     log(writer, "\t-h --help\tPrints this help message.");
     log(writer, "");
-    
+
     log(writer, bold("  Highlight pattern:")+" [pattern1 pattern2 ...] [-color pattern1 pattern2 ...] ....");
     log(writer, "\tpattern\tRegex pattern. If no color is specified, by default it is highlighted in Red.");
     log(writer, "\tcolor\tHighlighting color, style, preset or modifier. Allowed values:");
@@ -367,7 +367,7 @@ function printHelp (writer) {
     log(writer, "  Preset name allows alphanumeric characters, '-' and '_'.");
     log(writer, "  Preset definition follow the same rule as for 'Highlight pattern'.");
     log(writer, '');
-    
+
     log(writer, bold("  Examples:"));
     log(writer, "\tHighlight 'error' and 'warn' in default color (red)");
     log(writer, gray("\ttail -f file | lch error warn"));
@@ -397,14 +397,14 @@ function log(writer, text){
 }
 
 /**
- * Parses command line arguments and transforms them into 
- * options understood by log highlighter (index.js).
+ * Parses command line arguments and transforms them into
+ * options understood by log highlighter (highlighter.js).
  */
 function parseCmd(args, writer) {
     var parsedArguments = {
-            argFile: null, // -f 
+            argFile: null, // -f
             argConfig: null, // -c
-            argCaseSensitive: false, // -cs 
+            argCaseSensitive: false, // -cs
             argDefaultStyle: '', // -s
             argHelp: false, // -h, --help
             highlightOptions: [null]
@@ -425,7 +425,7 @@ function parseCmd(args, writer) {
         printHelp(writer);
         return false;
     }
-    
+
     return {
         fileName: parsedArguments.argFile,
         caseSensitive: parsedArguments.argCaseSensitive,

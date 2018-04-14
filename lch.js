@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 var parseCmd = require('./parseCmd');
-var highlight = require('./index');
+var highlight = require('./highlighter');
 var events = require('events');
 
 var writer = process.stdout;

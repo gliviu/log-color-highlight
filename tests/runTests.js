@@ -4,7 +4,7 @@ var fs = require('fs');
 var path = require('path');
 var util = require('util');
 var parseCmd = require(__dirname + '/../parseCmd.js');
-var highlight = require(__dirname + '/../index.js');
+var highlight = require(__dirname + '/../highlighter.js');
 var streams = require('memory-streams');
 var stringArgv = require('../string-argv');
 var events = require('events');
@@ -45,8 +45,8 @@ var tests = [
                  args: "-f "+INPUT3_PATH+" -green 1234 123456 5678",
                  shouldFail: false,
                  res: false
-             }, 
-             
+             },
+
              // TEST SET 2 - processLine()
              // Case 1
              {
@@ -143,7 +143,7 @@ var tests = [
                  shouldFail: false,
                  res: false
              },
-             
+
              // TEST SET 3 - Modifiers - ci, cs
              {
                  name: 'test3_case1',
@@ -243,7 +243,7 @@ var tests = [
                  shouldFail: false,
                  res: false
              },
-             
+
              // TEST SET 4 - Modifiers - esc
              {
                  name: 'test4_case1',
@@ -280,7 +280,7 @@ var tests = [
                  shouldFail: false,
                  res: false
              },
-             
+
              // TEST SET 5 - Default highlight
              {
                  name: 'test5_case1',
@@ -317,7 +317,7 @@ var tests = [
                  shouldFail: false,
                  res: false
              },
-             
+
              // TEST SET 6 - Default style '-s'
              {
                  name: 'test6_case1',
@@ -340,7 +340,7 @@ var tests = [
                  shouldFail: false,
                  res: false
              },
-             
+
              // TEST SET 7 - Presets
              {
                  name: 'test7_case1',
@@ -422,11 +422,11 @@ function test() {
     var t = tests[currentTest++];
     var args = stringArgv.parseArgsStringToArgv(t.args);
     var handler = new events.EventEmitter();
-    
+
     var writer = new streams.WritableStream();
-    
+
     var options = parseCmd(args, writer);
-    
+
     setImmediate(function(){
         if(!options){
             handler.emit('failed');
@@ -471,17 +471,17 @@ function nextTest(){
 
 function test1(callback){
     var params;
-    
+
     params = stringArgv.parseArgsStringToArgv("-f "+INPUT1_PATH+" -blue.bold SysMonWidget -blue 9084 -yellow ' \\d\\d\\d' -RED.bold '.*at .*?(\\d|native method)\\)' -GREEN.BOLD 'start timer activated' -BGGREEN.BOLD.WHITE end");
     test('test1', params, callback);
 }
 
 function test2(callback){
     var params;
-    
+
     params = stringArgv.parseArgsStringToArgv("-f "+INPUT2_PATH+" -green receive -red ctrl");
     test('test2_1', params, callback);
-    
+
 }
 
 function runTests () {
