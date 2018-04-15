@@ -15,6 +15,7 @@ var validModifiers = {
         'ci' : true, // case insensitive
         'cs' : true, // case sensitive
         'esc' : true, // escape regexp characters
+        'wl' : true, // whole line
 };
 
 var validColors = {
@@ -52,7 +53,7 @@ var validStyles = {
 };
 
 /**
- * Validates 'args' and adds them in 'result'. Returns true in case of success. Returns descriptive string in case of validation error.
+ * Validates 'args' and adds them in 'result'. Returns true in case of success. Returns descriptive message in case of validation error.
  * @param args Command line arguments.
  */
 function validateAndBuildOptions (args, result) {

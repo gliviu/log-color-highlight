@@ -174,18 +174,22 @@ function highlight(options, writer, eventEmitter) {
                 caseOption = 'i';
             }
             var shouldEscape = highlightOption.modifiers['esc']===true;
-            
+            var wholeLine = highlightOption.modifiers['wl']===true;
+
             // Cache pattern as regex.
             var patternListStr = '';
             for (var j = highlightOption.patternArray.length-1; j >= 0 ; j--) { // Iterate in reverse order because we want that last pattern to override the previous.
                 if(patternListStr.length>0){
                     patternListStr+='|';
                 }
+                patternStr = highlightOption.patternArray[j]
                 if(shouldEscape){
-                    patternListStr+= escapeRegExp(highlightOption.patternArray[j]);
-                } else{
-                    patternListStr+=highlightOption.patternArray[j];
+                    patternStr = escapeRegExp(patternStr);
                 }
+                if(wholeLine){
+                  patternStr = '.*?' + patternStr + '.*'
+                }
+                patternListStr+=patternStr;
             }
             highlightOption.patternRegex = new RegExp(patternListStr, 'g'+caseOption);
 
