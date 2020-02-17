@@ -6,7 +6,7 @@ var DASH_START_REGEX = /^-.*$/;
 
 var ansi = require('ansi-styles');
 var execute = require('./highlighter');
-var pjson = require('./package.json');
+var pjson = require('../package.json');
 var npath = require('path');
 var fs = require('fs');
 
@@ -223,7 +223,6 @@ function buildConfigFilePath(configFileParam){
     }
 }
 
-// http://stackoverflow.com/questions/9229645/remove-duplicates-from-javascript-array/9229821#9229821
 function removeDuplicates(array){
     return array.filter(function(item, pos) {
         return array.indexOf(item) == pos;
@@ -243,12 +242,10 @@ function existsInLchConfigEnv(configFileRelativePath){
     }
 }
 
-//http://stackoverflow.com/questions/21698906/how-to-check-if-a-path-is-absolute-or-relative/30714706#30714706
 function isAbsolute(p) {
     return npath.normalize(p + '/') === npath.normalize(npath.resolve(p) + '/');
 }
 
-// http://stackoverflow.com/questions/9080085/node-js-find-home-directory-in-platform-agnostic-way/9081436#9081436
 function getUserHome () {
     return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 }

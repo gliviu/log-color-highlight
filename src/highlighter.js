@@ -21,30 +21,30 @@ function buildAnsiColor(colorsStr){
  * Text highlighting algorithm.
  * Iterates all highlightOptions and applies them in order such that last one will override the others.
  * For each step there is
- * a1..a2 - start/end match indexes for previous highlight option (HA) 
+ * a1..a2 - start/end match indexes for previous highlight option (HA)
  * b1..b2 - start/end match indexes for previous highlight option (HB)
  * As a general rule b1-b2 takes precedence over a1-a2. Following cases are possible.
- * Case1: a1...a2...b1...b2  or b1...b2...a1...a2   
+ * Case1: a1...a2...b1...b2  or b1...b2...a1...a2
  *     Both intervals are distinct. They will be highlighted separately.
  *     HA - a1...a2
- *     HB - b1...b2 
+ *     HB - b1...b2
  * Case2: b1...a1...a2...b2
- *     HA will be removed. 
+ *     HA will be removed.
  *     HB - b1...b2
  * Case3: b1...a1...b2...a2
- *     HB will override first section of HA 
+ *     HB will override first section of HA
  *     HB - b1...b2
  *     HA - b2...a2
  * Case4: a1...b1...a2...b2
- *     HB will override last section of HA 
+ *     HB will override last section of HA
  *     HB - b1...b2
  *     HA - a1...b1
  * Case5: a1...b1...b2...a2
- *     HB situated in the middle of HA. Three highlighting sections will be created: 
+ *     HB situated in the middle of HA. Three highlighting sections will be created:
  *     HA - a1...b1
  *     HB - b1...b2
  *     HA - b2...a2
- *     
+ *
  */
 function highlightLine(line, highlightOptions) {
     var sections = [];
@@ -81,7 +81,7 @@ function highlightLine(line, highlightOptions) {
     }
     var result = [];
     var current = 0;
-    
+
     sections.sort(function(a, b) {
         if(a===null && b===null){
             return 0;
@@ -92,10 +92,10 @@ function highlightLine(line, highlightOptions) {
         if(a!==null && b===null){
             return -1;
         }
-        
+
         return a.start - b.start;
     });
-    
+
     for (var i = 0; i < sections.length; i++) {
         var section = sections[i];
         if(section){
@@ -109,7 +109,7 @@ function highlightLine(line, highlightOptions) {
         }
     }
     result.push(line.substr(current, line.length-current));
-    
+
     return result.join('');
 }
 
@@ -148,11 +148,11 @@ function buildColorFromText(highlightColorArg, defaultStyle){
  * Options:
  * highlightOptions
  *      List of highlight options. Will be applied in the order they were specified by user.
- *      The first element is used for default highlights (for which no color was specified). If that element is null, no default highlights are used. 
+ *      The first element is used for default highlights (for which no color was specified). If that element is null, no default highlights are used.
  *      Item format:
  *      {
  *          "patternArray": List of patterns as text
- *          "patternRegex": Regex representing concatenation of patternArray 
+ *          "patternRegex": Regex representing concatenation of patternArray
  *          "colorText": Textual color combination
  *          "modifiers": {ci:true}
  *          "colorAnsi": {open:'ansi open codes', close:'ansi close codes'}
@@ -196,11 +196,9 @@ function highlight(options, writer, eventEmitter) {
             // Cache color
             highlightOption.colorAnsi = buildColorFromText(highlightOption.colorText, options.defaultStyle);
         }
-        
+
     }
 
-//    console.log(JSON.stringify(options.highlightOptions, null, 2));
-        
     var liner = buildLiner(writer, eventEmitter, options.highlightOptions);
     if (options.fileName) {
         var source = fs.createReadStream(options.fileName);
@@ -214,7 +212,7 @@ function highlight(options, writer, eventEmitter) {
         process.stdin.setEncoding('utf8');
         process.stdin.pipe(liner);
     }
-    
+
     return;
 }
 

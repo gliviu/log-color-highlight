@@ -1,5 +1,6 @@
 /node_modules
 .project
+.nyc_output
 /test.log
 /test2.log
 /test3.log

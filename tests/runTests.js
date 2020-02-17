@@ -3,10 +3,10 @@ var colors = require('colors');
 var fs = require('fs');
 var path = require('path');
 var util = require('util');
-var parseCmd = require(__dirname + '/../parseCmd.js');
-var highlight = require(__dirname + '/../highlighter.js');
+var parseCmd = require('../src/parseCmd.js');
+var highlight = require('../src/highlighter.js');
 var streams = require('memory-streams');
-var stringArgv = require('../string-argv');
+var stringArgv = require('string-argv');
 var events = require('events');
 
 var INPUT1_PATH = path.normalize(__dirname + '/input1.txt');
