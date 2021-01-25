@@ -117,9 +117,10 @@ function buildLiner(writer, eventEmitter, highlightOptions) {
     var liner = require('./liner')();
 
     liner.on('readable', function () {
-        var line;
-        while (line = liner.read()) {
-            writer.write(highlightLine(line.toString(), highlightOptions)+'\n');
+        var data;
+        while (data = liner.read()) {
+            var lines = data.toString().split('\n')
+            lines.forEach(line => writer.write(highlightLine(line, highlightOptions)+'\n'))
         }
     });
     liner.on('end', function () {

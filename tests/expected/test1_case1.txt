@@ -42,6 +42,7 @@
 [31m[1m	at java.lang.reflect.Method.invoke(Method.java:372)[22m[39m
 [31m[1m	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:899)[22m[39m
 [31m[1m	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:694)[22m[39m
+
 2015-06-05 09:16:35:2430 [[34m[1mSysMonWidget[22m[39m] WidgetFirstUpdateTimer: [32m[1mSTART Timer activated[22m[39m [33m 129[39m
 2015-06-05 09:16:35:2440 [[34m[1mSysMonWidget[22m[39m] WidgetFirstUpdateTimer: App not running. MonitorId.  fe40301a-f688-47a8-84d4-080ca18d1edc
 2015-06-05 09:16:35:2580 [[34m9084[39m] Monitor: Set widget id:[33m 129[39m
