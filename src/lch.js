@@ -8,18 +8,18 @@ var writer = process.stdout;
 
 var args = process.argv.slice(2);
 var options = parseCmd(args, writer);
-if(!options){
+if (!options) {
     process.exit(1);
 }
 
 
 var eventEmitter = new events.EventEmitter();
-setImmediate(function(){
+setImmediate(function () {
     highlight(options, writer, eventEmitter);
 });
-eventEmitter.on("finished", function(){
+eventEmitter.on("finished", function () {
     process.exit(0);
 });
-eventEmitter.on("failed", function(){
+eventEmitter.on("failed", function () {
     process.exit(1);
 });
