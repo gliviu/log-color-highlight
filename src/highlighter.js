@@ -119,7 +119,7 @@ function buildLiner(writer, eventEmitter, highlightOptions) {
     liner.on('readable', function () {
         var line;
         while (line = liner.read()) {
-            writer.write(highlightLine(line, highlightOptions)+'\n');
+            writer.write(highlightLine(line.toString(), highlightOptions)+'\n');
         }
     });
     liner.on('end', function () {

@@ -1,12 +1,7 @@
-/**
- * https://strongloop.com/strongblog/practical-examples-of-the-new-node-js-streams-api/
- */
-
-
 var stream = require('stream');
 
 function buildLiner(){
-    var liner = new stream.Transform( { objectMode: true } );
+    var liner = new stream.Transform();
 
     liner._transform = function (chunk, encoding, done) {
          var data = chunk.toString();
@@ -17,8 +12,7 @@ function buildLiner(){
          var lines = data.split('\n');
          this._lastLineData = lines.splice(lines.length-1,1)[0];
 
-         lines.forEach(this.push.bind(this));
-         done();
+         done(null, lines.join('\n'));
     };
 
     liner._flush = function (done) {
