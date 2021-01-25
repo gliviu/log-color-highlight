@@ -58,7 +58,7 @@ echo Info, Warn | lch -green.cs info -yellow warn
 ```
 ```wl``` Highlights the whole line
 ```bash
-echo highlight whole line | node lch.js -green.wl whole -yellow light
+echo highlight whole line | lch -green.wl whole -yellow light
 ```
 ```esc```  Escapes regex special characters
 ```bash

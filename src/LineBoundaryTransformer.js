@@ -1,9 +1,17 @@
 var stream = require('stream');
 
-function buildLiner() {
-    var liner = new stream.Transform();
+/**
+ * Makes sure stream processing occurs only at line boundary.
+ * That means the output of this transformer will contain chunks 
+ * that never start or end in the middle of a line.
+ */
+module.exports = class LineBoundaryTransformer extends stream.Transform {
+    _lastLineData = ''
+    constructor(options) {
+        super(options);
+    }
 
-    liner._transform = function (chunk, encoding, done) {
+    _transform(chunk, encoding, done) {
         var data = chunk.toString();
         if (this._lastLineData) {
             data = this._lastLineData + data;
@@ -13,15 +21,11 @@ function buildLiner() {
         this._lastLineData = lines.splice(lines.length - 1, 1)[0];
 
         done(null, lines.join('\n'));
-    };
+    }
 
-    liner._flush = function (done) {
+    _flush(done) {
         if (this._lastLineData) this.push(this._lastLineData);
         this._lastLineData = null;
         done();
-    };
-
-    return liner;
+    }
 }
-
-module.exports = buildLiner;

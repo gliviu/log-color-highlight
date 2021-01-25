@@ -1,25 +1,27 @@
 #!/usr/bin/env node
 
-var parseCmd = require('./parseCmd');
-var highlight = require('./highlighter');
+var CommandLineParser = require('./CommandLineParser');
+var LogHighlighter = require('./LogHighlighter')
 var events = require('events');
 
-var writer = process.stdout;
+var output = process.stdout;
 
 var args = process.argv.slice(2);
-var options = parseCmd(args, writer);
+var options = CommandLineParser.parseCmd(args, output);
 if (!options) {
     process.exit(1);
 }
 
 
 var eventEmitter = new events.EventEmitter();
-setImmediate(function () {
-    highlight(options, writer, eventEmitter);
-});
+LogHighlighter.highlight(options, output, eventEmitter);
+
 eventEmitter.on("finished", function () {
     process.exit(0);
 });
 eventEmitter.on("failed", function () {
     process.exit(1);
 });
+
+
+

@@ -4,7 +4,7 @@
   "description": "Node Js command line utility for highlighting log files",
   "main": "src/highlighter.js",
   "bin": {
-    "lch": "src/lch.js"
+    "lch": "src/index.js"
   },
   "repository": {
     "type": "git",

@@ -3,11 +3,11 @@ var colors = require('colors');
 var fs = require('fs');
 var path = require('path');
 var util = require('util');
-var parseCmd = require('../src/parseCmd.js');
-var highlight = require('../src/highlighter.js');
+var CommandLineParser = require('../src/CommandLineParser.js');
 var streams = require('memory-streams');
 var stringArgv = require('string-argv');
 var events = require('events');
+var LogHighlighter = require('../src/LogHighlighter')
 
 var INPUT1_PATH = path.normalize(__dirname + '/input1.txt');
 var INPUT2_PATH = path.normalize(__dirname + '/input2.txt');
@@ -430,34 +430,34 @@ function test() {
     var args = stringArgv.parseArgsStringToArgv(t.args);
     var handler = new events.EventEmitter();
 
-    var writer = new streams.WritableStream();
+    var output = new streams.WritableStream();
 
-    var options = parseCmd(args, writer);
+    var options = CommandLineParser.parseCmd(args, output);
 
     setImmediate(function () {
         if (!options) {
             handler.emit('failed');
             return;
         }
-        highlight(options, writer, handler);
+        LogHighlighter.highlight(options, output, handler);
     });
     handler.on('finished', function () {
-        var output = writer.toString();
+        var result = output.toString();
         var expected = t.expected ? t.expected : fs.readFileSync(__dirname + '/expected/' + t.name + '.txt', 'utf8').replace("\r\n|\n", "");
-        //        if (t.name == 'test7_case4') {
-        //          console.log(output);
-        //        }
-        var res = t.shouldFail === false && escape(output) === escape(expected);
+        // if (t.name == 'test1_case1') {
+        //     console.log(result);
+        // }
+        var res = t.shouldFail === false && escape(result) === escape(expected);
         t.res = res;
         nextTest();
     });
     handler.on('failed', function () {
-        var output = writer.toString();
+        var result = output.toString();
         var expected = t.expected ? t.expected : fs.readFileSync(__dirname + '/expected/' + t.name + '.txt', 'utf8').replace("\r\n|\n", "");
-        if (t.name == 'test3_case1') {
-            //          console.log(output);
-        }
-        var res = t.shouldFail === true && escape(output).indexOf(escape(expected)) > -1;
+        // if (t.name == 'test3_case1') {
+        //     console.log(result);
+        // }
+        var res = t.shouldFail === true && escape(result).indexOf(escape(expected)) > -1;
         t.res = res;
         nextTest();
     });

@@ -5,11 +5,55 @@ var NO_DASH_START_REGEX = /^[^\-].*$/; // Text that does not start with a dash.
 var DASH_START_REGEX = /^-.*$/;
 
 var ansi = require('ansi-styles');
-var execute = require('./highlighter');
 var pjson = require('../package.json');
-var npath = require('path');
 var fs = require('fs');
+var Config = require('./Config');
+const { join, resolve, normalize } = require('path');
+var HighlightOptions = require('./HighlightOptions')
 
+
+module.exports = {
+    /**
+     * Parse command line arguments.
+     */
+    parseCmd(args, output) {
+        var parsedArguments = {
+            argFile: null, // -f
+            argConfig: null, // -c
+            argCaseSensitive: false, // -cs
+            argDefaultStyle: '', // -s
+            argHelp: false, // -h, --help
+            highlightOptions: [null]
+        };
+        var parseResult = validateAndBuildOptions(args, parsedArguments);
+        if (parseResult !== true) {
+            log(output, parseResult);
+            printHelp(output);
+            return;
+        }
+
+        if (parsedArguments.argHelp) {
+            printHelp(output);
+            return;
+        }
+        if (parsedArguments.highlightOptions.length === 1 && parsedArguments.highlightOptions[0] === null) {
+            log(output, error("No highlight pattern specified"));
+            printHelp(output);
+            return;
+        }
+
+        const options = {
+            fileName: parsedArguments.argFile,
+            caseSensitive: parsedArguments.argCaseSensitive,
+            defaultStyle: parsedArguments.argDefaultStyle,
+            highlightOptions: parsedArguments.highlightOptions
+        }
+
+        HighlightOptions.addRegexpToOptions(options);
+
+        return options
+    }
+}
 
 var validModifiers = {
     'ci': true, // case insensitive
@@ -91,8 +135,7 @@ function validateAndBuildOptions(args, result) {
                 return error(err);
             }
 
-            var buildConfigArgument = require('./config');
-            var configArgs = buildConfigArgument(result.argConfig);
+            var configArgs = Config.buildConfigArgument(result.argConfig);
             var optionsResult = validateAndBuildOptions(configArgs, result);
             if (optionsResult !== true) {
                 return error('Error in config file: ' + optionsResult);
@@ -199,22 +242,22 @@ function buildConfigFilePath(configFileParam) {
     if (fileExists(configFileParam)) {
         // Config file found.
         return configFileParam;
-    } else if (fileExists(npath.join(getUserHome(), configFileParam))) {
+    } else if (fileExists(join(getUserHome(), configFileParam))) {
         // Config file found in user home directory.
-        return npath.join(getUserHome(), configFileParam);
+        return join(getUserHome(), configFileParam);
     } else if (existsInLchConfigEnv(configFileParam)) {
         // Config file found in LCH_CONFIG environment variable.
-        return npath.join(process.env.LCH_CONFIG, configFileParam);
+        return join(process.env.LCH_CONFIG, configFileParam);
     } else {
         // Config file not found.
         if (isAbsolute(configFileParam)) {
-            throw "Config file path '" + npath.resolve(configFileParam) + "' does not point to an existing file.";
+            throw "Config file path '" + resolve(configFileParam) + "' does not point to an existing file.";
         } else {
             var paths = [];
-            paths.push(npath.resolve(configFileParam));
-            paths.push(npath.resolve(npath.join(getUserHome(), configFileParam)));
+            paths.push(resolve(configFileParam));
+            paths.push(resolve(join(getUserHome(), configFileParam)));
             if (process.env.LCH_CONFIG) {
-                paths.push(npath.join(process.env.LCH_CONFIG, configFileParam));
+                paths.push(join(process.env.LCH_CONFIG, configFileParam));
             }
 
             var uniquePaths = removeDuplicates(paths);
@@ -234,7 +277,7 @@ function existsInLchConfigEnv(configFileRelativePath) {
     if (!process.env.LCH_CONFIG) {
         return false;
     }
-    var confPath = npath.join(process.env.LCH_CONFIG, configFileRelativePath);
+    var confPath = join(process.env.LCH_CONFIG, configFileRelativePath);
     if (fileExists(confPath)) {
         return true;
     } else {
@@ -242,8 +285,8 @@ function existsInLchConfigEnv(configFileRelativePath) {
     }
 }
 
-function isAbsolute(p) {
-    return npath.normalize(p + '/') === npath.normalize(npath.resolve(p) + '/');
+function isAbsolute(path) {
+    return normalize(path + '/') === normalize(resolve(path) + '/');
 }
 
 function getUserHome() {
@@ -325,60 +368,60 @@ function addHighlightPattern(highlightOptions, highlightColor, modifiers, highli
     highlightOptions[i].patternArray = highlightOptions[i].patternArray.concat(highlightPatternArray);
 }
 
-function printHelp(writer) {
-    log(writer, "  log-color-highlight v" + pjson.version);
+function printHelp(output) {
+    log(output, "  log-color-highlight v" + pjson.version);
 
-    log(writer, bold("  Usage:") + " lch [options] Highlight pattern");
-    log(writer, "");
+    log(output, bold("  Usage:") + " lch [options] Highlight pattern");
+    log(output, "");
 
-    log(writer, bold("  Options:"));
-    log(writer, "\t-f filePath\tInput file path. If this is not provided, standard input is used.");
-    log(writer, "\t-c configPath\tPath to configuration file.");
-    log(writer, "\t-s style\tImplicit style.");
-    log(writer, "\t-cs\t\tCase sensitive. By default text matching is done case insensitive.");
-    log(writer, "\t-p\t\tAdd color or style preset.");
-    log(writer, "\t-h --help\tPrints this help message.");
-    log(writer, "");
+    log(output, bold("  Options:"));
+    log(output, "\t-f filePath\tInput file path. If this is not provided, standard input is used.");
+    log(output, "\t-c configPath\tPath to configuration file.");
+    log(output, "\t-s style\tImplicit style.");
+    log(output, "\t-cs\t\tCase sensitive. By default text matching is done case insensitive.");
+    log(output, "\t-p\t\tAdd color or style preset.");
+    log(output, "\t-h --help\tPrints this help message.");
+    log(output, "");
 
-    log(writer, bold("  Highlight pattern:") + " [pattern1 pattern2 ...] [-color pattern1 pattern2 ...] ....");
-    log(writer, "\tpattern\tRegex pattern. If no color is specified, by default it is highlighted in Red.");
-    log(writer, "\tcolor\tHighlighting color, style, preset or modifier. Allowed values:");
-    writer.write(gray("\t\tColors:"));
+    log(output, bold("  Highlight pattern:") + " [pattern1 pattern2 ...] [-color pattern1 pattern2 ...] ....");
+    log(output, "\tpattern\tRegex pattern. If no color is specified, by default it is highlighted in Red.");
+    log(output, "\tcolor\tHighlighting color, style, preset or modifier. Allowed values:");
+    output.write(gray("\t\tColors:"));
     for (var color in validColors) {
-        writer.write(" " + color);
+        output.write(" " + color);
     }
-    writer.write(gray("\n\t\tBackground colors:"));
+    output.write(gray("\n\t\tBackground colors:"));
     for (var color in validBgColors) {
-        writer.write(" " + color);
+        output.write(" " + color);
     }
-    writer.write(gray("\n\t\tStyles:"));
+    output.write(gray("\n\t\tStyles:"));
     for (var color in validStyles) {
-        writer.write(" " + color);
+        output.write(" " + color);
     }
-    writer.write(gray("\n\t\tPresets:") + " any preset defined with '-p' parameter");
-    writer.write(gray("\n\t\tModifiers:"));
-    writer.write("\n\t\t\tcs ci - toggle for case sensitivity");
-    writer.write("\n\t\t\tesc  - escape regex special characters");
+    output.write(gray("\n\t\tPresets:") + " any preset defined with '-p' parameter");
+    output.write(gray("\n\t\tModifiers:"));
+    output.write("\n\t\t\tcs ci - toggle for case sensitivity");
+    output.write("\n\t\t\tesc  - escape regex special characters");
 
-    log(writer, "");
-    log(writer, bold("  Presets:") + " -p presetName=def -p presetName=def ...");
-    log(writer, "  Preset name allows alphanumeric characters, '-' and '_'.");
-    log(writer, "  Preset definition follow the same rule as for 'Highlight pattern'.");
-    log(writer, '');
+    log(output, "");
+    log(output, bold("  Presets:") + " -p presetName=def -p presetName=def ...");
+    log(output, "  Preset name allows alphanumeric characters, '-' and '_'.");
+    log(output, "  Preset definition follow the same rule as for 'Highlight pattern'.");
+    log(output, '');
 
-    log(writer, bold("  Examples:"));
-    log(writer, "\tHighlight 'error' and 'warn' in default color (red)");
-    log(writer, gray("\ttail -f file | lch error warn"));
-    log(writer, "\tHighlight errors and warnings");
-    log(writer, gray('\techo "errors, failures and warnings" | lch -red.bold error errors failure -yellow warn'));
-    log(writer, "\tSimilar to above using presets");
-    log(writer, gray('\techo "errors, failures and warnings" | lch -p err=bgred.white -p wrn=bgyellow.black -err.bold error errors failure -wrn warn'));
-    log(writer, "\tImplicit style");
-    log(writer, gray('\techo "errors, failures and warnings" | lch -s bold.italic -red errors -yellow warnings'));
-    log(writer, "\tCase sensitivity");
-    log(writer, gray('\techo "errors, failures and warnings" | lch -cs -red Errors -yellow.ci Warnings'));
-    log(writer, '');
-    log(writer, "\tMore samples at https://www.npmjs.com/package/log-color-highlight#examples");
+    log(output, bold("  Examples:"));
+    log(output, "\tHighlight 'error' and 'warn' in default color (red)");
+    log(output, gray("\ttail -f file | lch error warn"));
+    log(output, "\tHighlight errors and warnings");
+    log(output, gray('\techo "errors, failures and warnings" | lch -red.bold error errors failure -yellow warn'));
+    log(output, "\tSimilar to above using presets");
+    log(output, gray('\techo "errors, failures and warnings" | lch -p err=bgred.white -p wrn=bgyellow.black -err.bold error errors failure -wrn warn'));
+    log(output, "\tImplicit style");
+    log(output, gray('\techo "errors, failures and warnings" | lch -s bold.italic -red errors -yellow warnings'));
+    log(output, "\tCase sensitivity");
+    log(output, gray('\techo "errors, failures and warnings" | lch -cs -red Errors -yellow.ci Warnings'));
+    log(output, '');
+    log(output, "\tMore samples at https://www.npmjs.com/package/log-color-highlight#examples");
 }
 
 function error(message) {
@@ -390,47 +433,9 @@ function bold(message) {
 function gray(message) {
     return ansi.gray.open + message + ansi.gray.close;
 }
-function log(writer, text) {
-    writer.write(text + '\n');
-}
-
-/**
- * Parses command line arguments and transforms them into
- * options understood by log highlighter (highlighter.js).
- */
-function parseCmd(args, writer) {
-    var parsedArguments = {
-        argFile: null, // -f
-        argConfig: null, // -c
-        argCaseSensitive: false, // -cs
-        argDefaultStyle: '', // -s
-        argHelp: false, // -h, --help
-        highlightOptions: [null]
-    };
-    var parseResult = validateAndBuildOptions(args, parsedArguments);
-    if (parseResult !== true) {
-        log(writer, parseResult);
-        printHelp(writer);
-        return false;
-    }
-
-    if (parsedArguments.argHelp) {
-        printHelp(writer);
-        return false;
-    }
-    if (parsedArguments.highlightOptions.length === 1 && parsedArguments.highlightOptions[0] === null) {
-        log(writer, error("No highlight pattern specified"));
-        printHelp(writer);
-        return false;
-    }
-
-    return {
-        fileName: parsedArguments.argFile,
-        caseSensitive: parsedArguments.argCaseSensitive,
-        defaultStyle: parsedArguments.argDefaultStyle,
-        highlightOptions: parsedArguments.highlightOptions
-    };
+function log(output, text) {
+    output.write(text + '\n');
 }
 
 
-module.exports = parseCmd;
+
