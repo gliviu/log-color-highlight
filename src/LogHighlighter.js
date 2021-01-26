@@ -1,6 +1,6 @@
-var LineHighlighter = require('./LineHighlighter');
-var fs = require('fs')
-var LineBoundaryTransformer = require('./LineBoundaryTransformer')
+const LineHighlighter = require('./LineHighlighter')
+const fs = require('fs')
+const LineBoundaryTransformer = require('./LineBoundaryTransformer')
 
 
 module.exports = {
@@ -20,47 +20,41 @@ module.exports = {
      *     * colorAnsi - {open:'ansi open codes', close:'ansi close codes'}
      */
     highlight(options, output, eventEmitter) {
-        var lineBoundaryTransformer = new LineBoundaryTransformer()
+        const lineBoundaryTransformer = new LineBoundaryTransformer()
 
-        var input = getInput(options, output, eventEmitter);
-        input = input.pipe(lineBoundaryTransformer);
+        let input = getInput(options, output, eventEmitter)
+        input = input.pipe(lineBoundaryTransformer)
 
-        buildLineProcessor(input, output, eventEmitter, options.highlightOptions);
+        highlightLines(input, output, eventEmitter, options.highlightOptions)
     }
 
 }
 
 function getInput(options, output, eventEmitter) {
-    var input;
     if (options.fileName) {
-        input = fs.createReadStream(options.fileName);
-        input.on('error', function (event) {
-            output.write("Could not open file " + options.fileName);
-            eventEmitter.emit('failed');
-        });
-    } else {
-        process.stdin.resume();
-        process.stdin.setEncoding('utf8');
-        input = process.stdin;
+        const input = fs.createReadStream(options.fileName)
+        input.on('error', () => {
+                output.write("Could not open file " + options.fileName)
+                eventEmitter.emit('failed')
+            })
+        return input
     }
-    return input;
+
+    process.stdin.resume()
+    process.stdin.setEncoding('utf8')
+    return process.stdin
 }
 
 /**
  * Highlight each input line and send it to output stream.
  */
-function buildLineProcessor(input, output, eventEmitter, highlightOptions) {
-    input.on('readable', function () {
-        var data;
-        while (data = input.read()) {
-            var lines = data.toString().split('\n')
-            lines.forEach(line => output.write(LineHighlighter.highlight(line, highlightOptions) + '\n'))
-        }
-    });
-
-    input.on('end', function () {
-        eventEmitter.emit('finished');
-    });
-
-    return input;
+function highlightLines(input, output, eventEmitter, highlightOptions) {
+    input.on('readable', () => {
+            let data
+            while (data = input.read()) {
+                const lines = data.toString().split('\n')
+                lines.forEach(line => output.write(LineHighlighter.highlight(line, highlightOptions) + '\n'))
+            }
+        })
+    input.on('end', () => eventEmitter.emit('finished'))
 }

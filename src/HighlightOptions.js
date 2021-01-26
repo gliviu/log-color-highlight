@@ -1,4 +1,4 @@
-var ansi = require('ansi-styles');
+const ansi = require('ansi-styles')
 
 module.exports = {
     /**
@@ -6,71 +6,71 @@ module.exports = {
      * and add the regexp to options.
      */
     addRegexpToOptions(options) {
-        for (var i = 0; i < options.highlightOptions.length; i++) {
-            var highlightOption = options.highlightOptions[i];
+        for (let i = 0; i < options.highlightOptions.length; i++) {
+            const highlightOption = options.highlightOptions[i]
             if (highlightOption) {
                 // Regex case option
-                var caseOption = options.caseSensitive ? '' : 'i'; // Case sensitive is default regex option
+                let caseOption = options.caseSensitive ? '' : 'i' // Case sensitive is default regex option
                 if (highlightOption.modifiers['cs']) {
-                    caseOption = '';
+                    caseOption = ''
                 }
                 if (highlightOption.modifiers['ci']) {
-                    caseOption = 'i';
+                    caseOption = 'i'
                 }
-                var shouldEscape = highlightOption.modifiers['esc'] === true;
-                var wholeLine = highlightOption.modifiers['wl'] === true;
+                const shouldEscape = highlightOption.modifiers['esc'] === true
+                const wholeLine = highlightOption.modifiers['wl'] === true
     
                 // Cache pattern as regex.
-                var patternListStr = '';
-                for (var j = highlightOption.patternArray.length - 1; j >= 0; j--) { // Iterate in reverse order because we want that last pattern to override the previous.
+                let patternListStr = ''
+                for (let j = highlightOption.patternArray.length - 1; j >= 0; j--) { // Iterate in reverse order because we want that last pattern to override the previous.
                     if (patternListStr.length > 0) {
-                        patternListStr += '|';
+                        patternListStr += '|'
                     }
-                    patternStr = highlightOption.patternArray[j];
+                    patternStr = highlightOption.patternArray[j]
                     if (shouldEscape) {
-                        patternStr = escapeRegExp(patternStr);
+                        patternStr = escapeRegExp(patternStr)
                     }
                     if (wholeLine) {
-                        patternStr = '.*?' + patternStr + '.*';
+                        patternStr = '.*?' + patternStr + '.*'
                     }
-                    patternListStr += patternStr;
+                    patternListStr += patternStr
                 }
-                highlightOption.patternRegex = new RegExp(patternListStr, 'g' + caseOption);
+                highlightOption.patternRegex = new RegExp(patternListStr, 'g' + caseOption)
     
                 // Cache color
-                highlightOption.colorAnsi = buildColorFromText(highlightOption.colorText, options.defaultStyle);
+                highlightOption.colorAnsi = buildColorFromText(highlightOption.colorText, options.defaultStyle)
             }
         }
     }
 }
 
 function buildColorFromText(highlightColorArg, defaultStyle) {
-    var colorsText = highlightColorArg.split('.');
-    var colorStr = defaultStyle;
-    for (var i = 0; i < colorsText.length; i++) {
-        var colorText = colorsText[i];
+    const colorsText = highlightColorArg.split('.')
+    let colorStr = defaultStyle
+    for (let i = 0; i < colorsText.length; i++) {
+        const colorText = colorsText[i]
         if (colorStr.length > 0) {
-            colorStr += '.';
+            colorStr += '.'
         }
-        colorStr += colorText;
+        colorStr += colorText
     }
-    return buildAnsiColor(colorStr);
+    return buildAnsiColor(colorStr)
 }
 
 //Receives 'color1.color2...'.
 //Returns {open:'ansi open codes', close:'ansi close codes'}
 function buildAnsiColor(colorsStr) {
-    var colorsArray = colorsStr.split('.');
-    var ansiOpen = '';
-    var ansiClose = '';
-    for (var i = 0; i < colorsArray.length; i++) {
-        var colorStr = colorsArray[i];
+    const colorsArray = colorsStr.split('.')
+    let ansiOpen = ''
+    let ansiClose = ''
+    for (let i = 0; i < colorsArray.length; i++) {
+        const colorStr = colorsArray[i]
         ansiOpen += ansi[colorStr].open
-        ansiClose = ansi[colorStr].close + ansiClose;
+        ansiClose = ansi[colorStr].close + ansiClose
     }
-    return { open: ansiOpen, close: ansiClose };
+    return { open: ansiOpen, close: ansiClose }
 }
 
 function escapeRegExp(string) {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
 }

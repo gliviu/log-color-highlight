@@ -1,33 +1,31 @@
-"use strict";
-var colors = require('colors');
-var fs = require('fs');
-var path = require('path');
-var util = require('util');
-var CommandLineParser = require('../src/CommandLineParser.js');
-var streams = require('memory-streams');
-var stringArgv = require('string-argv');
-var events = require('events');
-var LogHighlighter = require('../src/LogHighlighter')
+const colors = require('colors')
+const fs = require('fs')
+const path = require('path')
+const CommandLineParser = require('../src/CommandLineParser.js')
+const streams = require('memory-streams')
+const stringArgv = require('string-argv')
+const events = require('events')
+const LogHighlighter = require('../src/LogHighlighter')
 
-var INPUT1_PATH = path.normalize(__dirname + '/input1.txt');
-var INPUT2_PATH = path.normalize(__dirname + '/input2.txt');
-var INPUT3_PATH = path.normalize(__dirname + '/input3.txt');
-var INPUT4_PATH = path.normalize(__dirname + '/input4.txt');
+const INPUT1_PATH = path.normalize(__dirname + '/input1.txt')
+const INPUT2_PATH = path.normalize(__dirname + '/input2.txt')
+const INPUT3_PATH = path.normalize(__dirname + '/input3.txt')
+const INPUT4_PATH = path.normalize(__dirname + '/input4.txt')
 
-var count = 0, failed = 0, successful = 0;
+let count = 0, failed = 0, successful = 0
 
 function passed(value) {
-    count++;
+    count++
     if (value) {
-        successful++;
+        successful++
     } else {
-        failed++;
+        failed++
     }
-    return value ? 'Passed'.green : '!!!!FAILED!!!!'.yellow;
+    return value ? 'Passed'.green : '!!!!FAILED!!!!'.yellow
 }
 
-var currentTest = 0;
-var tests = [
+let currentTest = 0
+const tests = [
     {
         name: 'test1_case1',
         args: "-f " + INPUT1_PATH + " -blue.bold SysMonWidget -blue 9084 -yellow ' \\d\\d\\d' -RED.bold '.*at .*?(\\d|native method)\\)' -GREEN.BOLD 'start timer activated' -BGGREEN.BOLD.WHITE end",
@@ -419,80 +417,65 @@ var tests = [
         shouldFail: true,
         res: false
     },
-];
+]
 
 function escape(str) {
-    return str.replace("\r\n", "").replace("\n", "");
+    return str.replace("\r\n", "").replace("\n", "")
 }
 
 function test() {
-    var t = tests[currentTest++];
-    var args = stringArgv.parseArgsStringToArgv(t.args);
-    var handler = new events.EventEmitter();
+    const test = tests[currentTest++]
+    const args = stringArgv.parseArgsStringToArgv(test.args)
+    const handler = new events.EventEmitter()
 
-    var output = new streams.WritableStream();
+    const output = new streams.WritableStream()
 
-    var options = CommandLineParser.parseCmd(args, output);
+    const options = CommandLineParser.parseCmd(args, output)
 
-    setImmediate(function () {
+    setImmediate(() => {
         if (!options) {
-            handler.emit('failed');
-            return;
+            handler.emit('failed')
+            return
         }
-        LogHighlighter.highlight(options, output, handler);
-    });
-    handler.on('finished', function () {
-        var result = output.toString();
-        var expected = t.expected ? t.expected : fs.readFileSync(__dirname + '/expected/' + t.name + '.txt', 'utf8').replace("\r\n|\n", "");
-        // if (t.name == 'test1_case1') {
-        //     console.log(result);
-        // }
-        var res = t.shouldFail === false && escape(result) === escape(expected);
-        t.res = res;
-        nextTest();
-    });
-    handler.on('failed', function () {
-        var result = output.toString();
-        var expected = t.expected ? t.expected : fs.readFileSync(__dirname + '/expected/' + t.name + '.txt', 'utf8').replace("\r\n|\n", "");
-        // if (t.name == 'test3_case1') {
-        //     console.log(result);
-        // }
-        var res = t.shouldFail === true && escape(result).indexOf(escape(expected)) > -1;
-        t.res = res;
-        nextTest();
-    });
+        LogHighlighter.highlight(options, output, handler)
+    })
+    handler.on('finished', () => {
+            const result = output.toString()
+            const expected = test.expected ? test.expected : fs.readFileSync(__dirname + '/expected/' + test.name + '.txt', 'utf8').replace("\r\n|\n", "")
+            // if (t.name == 'test1_case1') {
+            //     console.log(result)
+            // }
+            const res = test.shouldFail === false && escape(result) === escape(expected)
+            test.res = res
+            nextTest()
+        })
+    handler.on('failed', () => {
+            const result = output.toString()
+            const expected = test.expected ? test.expected : fs.readFileSync(__dirname + '/expected/' + test.name + '.txt', 'utf8').replace("\r\n|\n", "")
+            // if (t.name == 'test3_case1') {
+            //     console.log(result)
+            // }
+            const res = test.shouldFail === true && escape(result).indexOf(escape(expected)) > -1
+            test.res = res
+            nextTest()
+        })
 }
 
 function nextTest() {
     if (currentTest < tests.length) {
-        test();
+        test()
     } else {
-        for (var i = 0; i < tests.length; i++) {
-            var testres = tests[i];
-            console.log(testres.name + ': ' + passed(testres.res));
+        for (let i = 0; i < tests.length; i++) {
+            const testres = tests[i]
+            console.log(testres.name + ': ' + passed(testres.res))
         }
-        console.log();
-        console.log('Tests: ' + count + ', failed: ' + failed.toString().yellow + ', succeeded: ' + successful.toString().green);
+        console.log()
+        console.log('Tests: ' + count + ', failed: ' + failed.toString().yellow + ', succeeded: ' + successful.toString().green)
     }
 }
 
-function test1(callback) {
-    var params;
-
-    params = stringArgv.parseArgsStringToArgv("-f " + INPUT1_PATH + " -blue.bold SysMonWidget -blue 9084 -yellow ' \\d\\d\\d' -RED.bold '.*at .*?(\\d|native method)\\)' -GREEN.BOLD 'start timer activated' -BGGREEN.BOLD.WHITE end");
-    test('test1', params, callback);
-}
-
-function test2(callback) {
-    var params;
-
-    params = stringArgv.parseArgsStringToArgv("-f " + INPUT2_PATH + " -green receive -red ctrl");
-    test('test2_1', params, callback);
-
-}
-
 function runTests() {
-    test();
+    test()
 }
 
-runTests();
+runTests()

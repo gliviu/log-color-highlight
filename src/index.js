@@ -1,27 +1,23 @@
 #!/usr/bin/env node
 
-var CommandLineParser = require('./CommandLineParser');
-var LogHighlighter = require('./LogHighlighter')
-var events = require('events');
+const CommandLineParser = require('./CommandLineParser')
+const LogHighlighter = require('./LogHighlighter')
+const events = require('events')
 
-var output = process.stdout;
+const output = process.stdout
 
-var args = process.argv.slice(2);
-var options = CommandLineParser.parseCmd(args, output);
+const args = process.argv.slice(2)
+const options = CommandLineParser.parseCmd(args, output)
 if (!options) {
-    process.exit(1);
+    process.exit(1)
 }
 
 
-var eventEmitter = new events.EventEmitter();
-LogHighlighter.highlight(options, output, eventEmitter);
+const eventEmitter = new events.EventEmitter()
+LogHighlighter.highlight(options, output, eventEmitter)
 
-eventEmitter.on("finished", function () {
-    process.exit(0);
-});
-eventEmitter.on("failed", function () {
-    process.exit(1);
-});
+eventEmitter.on("finished", () => process.exit(0))
+eventEmitter.on("failed", () => process.exit(1))
 
 
 

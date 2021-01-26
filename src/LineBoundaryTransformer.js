@@ -1,4 +1,4 @@
-var stream = require('stream');
+const stream = require('stream')
 
 /**
  * Makes sure stream processing occurs only at line boundary.
@@ -8,24 +8,24 @@ var stream = require('stream');
 module.exports = class LineBoundaryTransformer extends stream.Transform {
     _lastLineData = ''
     constructor(options) {
-        super(options);
+        super(options)
     }
 
     _transform(chunk, encoding, done) {
-        var data = chunk.toString();
+        let data = chunk.toString()
         if (this._lastLineData) {
-            data = this._lastLineData + data;
+            data = this._lastLineData + data
         }
 
-        var lines = data.split('\n');
-        this._lastLineData = lines.splice(lines.length - 1, 1)[0];
+        const lines = data.split('\n')
+        this._lastLineData = lines.splice(lines.length - 1, 1)[0]
 
-        done(null, lines.join('\n'));
+        done(null, lines.join('\n'))
     }
 
     _flush(done) {
-        if (this._lastLineData) this.push(this._lastLineData);
-        this._lastLineData = null;
-        done();
+        if (this._lastLineData) this.push(this._lastLineData)
+        this._lastLineData = null
+        done()
     }
 }

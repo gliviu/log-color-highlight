@@ -1,7 +1,7 @@
-var fs = require('fs');
-var stringArgv = require('string-argv');
+const fs = require('fs')
+const stringArgv = require('string-argv')
 
-var LINE_COMMENT_REGEX = /^#+.*$/m;
+const LINE_COMMENT_REGEX = /^#+.*$/m
 
 
 
@@ -10,19 +10,19 @@ module.exports = {
      * Builds arguments based on config file
      */
     buildConfigArgument(configFilePath) {
-        var args = [];
-        fs.readFileSync(configFilePath).toString().split('\n').forEach(function (line) { processConfigLine(line, args); });
-        return args;
+        const args = []
+        fs.readFileSync(configFilePath).toString().split('\n').forEach(line => processConfigLine(line, args))
+        return args
     }
 }
 
 function processConfigLine(line, args) {
     if (LINE_COMMENT_REGEX.test(line)) {
         // Ignore commments
-        return;
+        return
     }
 
-    args.push.apply(args, stringArgv.parseArgsStringToArgv(line));
+    args.push.apply(args, stringArgv.parseArgsStringToArgv(line))
 }
 
 

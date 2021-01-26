@@ -29,70 +29,69 @@ module.exports = {
      *
      */
     highlight(line, highlightOptions) {
-        var sections = [];
-        for (var i = 0; i < highlightOptions.length; i++) {
-            var highlightOption = highlightOptions[i];
+        const sections = []
+        for (let i = 0; i < highlightOptions.length; i++) {
+            const highlightOption = highlightOptions[i]
             if (highlightOption) {
-                var match;
+                let match
                 while (match = highlightOption.patternRegex.exec(line)) {
-                    var b2 = highlightOption.patternRegex.lastIndex - 1;
-                    var b1 = b2 - match[0].length + 1;
-                    var j;
-                    for (j = 0; j < sections.length; j++) {
-                        var section = sections[j];
+                    const b2 = highlightOption.patternRegex.lastIndex - 1
+                    const b1 = b2 - match[0].length + 1
+                    for (let j = 0; j < sections.length; j++) {
+                        const section = sections[j]
                         if (section != null) {
-                            var a1 = section.start;
-                            var a2 = section.end;
+                            const a1 = section.start
+                            const a2 = section.end
                             if (b1 <= a1 && b2 >= a2) { // Case 2
                                 // Remove section.
-                                sections[j] = null;
+                                sections[j] = null
                             } else if (b1 <= a1 && b2 >= a1 && b2 < a2) { // Case 3
-                                section.start = b2 + 1;
+                                section.start = b2 + 1
                             } else if (b1 > a1 && b1 <= a2 && b2 >= a2) { // Case 4
-                                section.end = b1 - 1;
+                                section.end = b1 - 1
                             } else if (b1 > a1 && b2 < a2) { // 5
-                                sections.push({ start: a1, end: b1 - 1, colorAnsi: sections[j].colorAnsi });
-                                sections.push({ start: b2 + 1, end: a2, colorAnsi: sections[j].colorAnsi });
-                                sections[j] = null;
+                                sections.push({ start: a1, end: b1 - 1, colorAnsi: sections[j].colorAnsi })
+                                sections.push({ start: b2 + 1, end: a2, colorAnsi: sections[j].colorAnsi })
+                                sections[j] = null
                             }
                         }
                     }
-                    sections.push({ start: b1, end: b2, colorAnsi: highlightOption.colorAnsi });
+                    sections.push({ start: b1, end: b2, colorAnsi: highlightOption.colorAnsi })
                 }
             }
         }
-        var result = [];
-        var current = 0;
+        const result = []
+        let current = 0
 
-        sections.sort(function (a, b) {
-            if (a === null && b === null) {
-                return 0;
-            }
-            if (a === null && b !== null) {
-                return 1;
-            }
-            if (a !== null && b === null) {
-                return -1;
-            }
+        sections.sort((a, b) => {
+                if (a === null && b === null) {
+                    return 0
+                }
+                if (a === null && b !== null) {
+                    return 1
+                }
+                if (a !== null && b === null) {
+                    return -1
+                }
 
-            return a.start - b.start;
-        });
+                return a.start - b.start
+            })
 
-        for (var i = 0; i < sections.length; i++) {
-            var section = sections[i];
+        for (let i = 0; i < sections.length; i++) {
+            const section = sections[i]
             if (section) {
-                result.push(line.substr(current, section.start - current));
-                result.push(section.colorAnsi.open);
-                result.push(line.substr(section.start, section.end - section.start + 1));
-                result.push(section.colorAnsi.close);
-                current = section.end + 1;
+                result.push(line.substr(current, section.start - current))
+                result.push(section.colorAnsi.open)
+                result.push(line.substr(section.start, section.end - section.start + 1))
+                result.push(section.colorAnsi.close)
+                current = section.end + 1
             } else {
-                break;
+                break
             }
         }
-        result.push(line.substr(current, line.length - current));
+        result.push(line.substr(current, line.length - current))
 
-        return result.join('');
+        return result.join('')
     }
 }
 
