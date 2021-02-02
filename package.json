@@ -1,11 +1,14 @@
 {
   "name": "log-color-highlight",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Node Js command line utility for highlighting log files",
   "main": "src/highlighter.js",
   "bin": {
     "lch": "src/index.js"
   },
+  "files": [
+    "src"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/gliviu/log-color-highlight"
