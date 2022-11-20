@@ -23,7 +23,7 @@
     "pipe"
   ],
   "dependencies": {
-    "ansi-styles": "5.1.0",
+    "ansi-styles": "6.2.1",
     "string-argv": "0.3.1"
   },
   "devDependencies": {
